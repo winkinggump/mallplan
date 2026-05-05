@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0b0e14">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MallPlan">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="manifest" href="manifest.json">
+<title>MallPlan 铺位算账本 · 手机版</title>
+<style>
+:root{
+  --bg-0:#0b0e14;
+  --bg-1:#11151d;
+  --bg-2:#171c26;
+  --line:#252d3b;
+  --line-strong:#34405a;
+  --ink-1:#e8ecf3;
+  --ink-2:#a9b3c7;
+  --ink-3:#6b7691;
+  --amber:#e6a83a;
+  --teal:#3fb6a8;
+  --rose:#e35b6a;
+  --shadow-1:0 1px 0 rgba(255,255,255,.03), 0 8px 24px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{
+  background:var(--bg-0);
+  color:var(--ink-1);
+  font-family:"PingFang SC","Microsoft YaHei",ui-sans-serif,system-ui,sans-serif;
+  font-size:14px;line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+.app{display:flex;flex-direction:column;height:100%;overflow:hidden}
+
+/* 顶部栏 */
+.topbar{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 16px;
+  background:rgba(11,14,20,.95);
+  border-bottom:1px solid var(--line);
+  flex-shrink:0;
+}
+.brand{display:flex;align-items:center;gap:8px;font-weight:700}
+.brand-mark{
+  width:28px;height:28px;border-radius:7px;
+  background:linear-gradient(135deg,var(--amber) 0%, #c97a1d 100%);
+  display:grid;place-items:center;
+  color:#0b0e14;font-weight:900;font-size:14px;
+}
+.brand-name{font-size:15px}
+.topbar-spacer{flex:1}
+.btn-sm{
+  padding:6px 12px;border-radius:8px;
+  background:var(--bg-2);border:1px solid var(--line);
+  color:var(--ink-2);font-size:12px;cursor:pointer;
+}
+.btn-sm.primary{
+  background:var(--amber);color:#0b0e14;border:none;font-weight:600;
+}
+
+/* 内容区 */
+.content{
+  flex:1;overflow-y:auto;
+  padding:16px;
+  -webkit-overflow-scrolling:touch;
+}
+
+/* 底部导航 */
+.tabbar{
+  display:flex;border-top:1px solid var(--line);
+  background:var(--bg-1);flex-shrink:0;
+}
+.tabbar button{
+  flex:1;padding:10px 0;
+  background:none;border:none;
+  color:var(--ink-3);font-size:11px;
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  cursor:pointer;transition:all .15s;
+}
+.tabbar button.active{color:var(--amber)}
+.tabbar button .icon{font-size:20px}
+
+/* 卡片 */
+.card{
+  background:var(--bg-1);
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:14px;
+  margin-bottom:12px;
+}
+.card-head{
+  font-size:13px;font-weight:600;
+  color:var(--ink-2);
+  margin-bottom:10px;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+}
+
+/* 铺位卡片 */
+.shop-card{
+  background:var(--bg-1);
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:14px;
+  margin-bottom:10px;
+}
+.shop-card .shop-id{
+  font-size:16px;font-weight:700;
+  color:var(--ink-1);
+  margin-bottom:4px;
+}
+.shop-card .shop-info{
+  font-size:12px;color:var(--ink-3);
+  margin-bottom:8px;
+}
+.shop-card .shop-tags{
+  display:flex;gap:6px;flex-wrap:wrap;
+  margin-bottom:10px;
+}
+.badge{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:2px 8px;border-radius:999px;
+  font-size:11px;font-weight:500;
+}
+.badge.ok{background:rgba(63,182,168,.14);color:var(--teal)}
+.badge.warn{background:rgba(230,168,58,.14);color:var(--amber)}
+.badge.err{background:rgba(227,91,106,.14);color:var(--rose)}
+
+/* 快速报价 */
+.quick-quote{
+  background:var(--bg-1);
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:20px;
+  text-align:center;
+  margin-bottom:16px;
+}
+.quick-quote .label{font-size:12px;color:var(--ink-3);margin-bottom:8px}
+.quick-quote .price{
+  font-family:"Source Serif Pro","Songti SC",serif;
+  font-size:36px;font-weight:600;
+  color:var(--ink-1);
+  margin-bottom:4px;
+}
+.quick-quote .price .yen{font-size:20px;color:var(--ink-3)}
+.quick-quote .range{font-size:12px;color:var(--ink-3)}
+
+/* 表单 */
+.field{margin-bottom:14px}
+.field label{display:block;font-size:11px;color:var(--ink-3);margin-bottom:6px;letter-spacing:.06em;text-transform:uppercase;font-weight:500}
+.field select,.field input{
+  width:100%;padding:10px 12px;
+  background:var(--bg-2);border:1px solid var(--line);
+  border-radius:8px;color:var(--ink-1);
+  font-size:15px;-webkit-appearance:none;
+}
+.field select:focus,.field input:focus{border-color:var(--amber);outline:none}
+
+/* 按钮 */
+.btn{
+  width:100%;padding:12px;
+  background:var(--amber);color:#0b0e14;
+  border:none;border-radius:8px;
+  font-size:15px;font-weight:600;
+  cursor:pointer;
+}
+.btn:active{opacity:.85}
+.btn-secondary{
+  background:var(--bg-2);color:var(--ink-1);
+  border:1px solid var(--line);
+}
+
+/* 隐藏页面 */
+.page{display:none;height:100%}
+.page.active{display:flex;flex-direction:column}
+
+/* Toast */
+.toast{
+  position:fixed;bottom:70px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--bg-3);border:1px solid var(--line-strong);color:var(--ink-1);
+  padding:10px 18px;border-radius:10px;font-size:13px;z-index:200;
+  opacity:0;transition:all .25s ease;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* 空状态 */
+.empty{
+  text-align:center;padding:30px 20px;color:var(--ink-3);font-size:13px;
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- 顶部栏 -->
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark">M</div>
+      <div class="brand-name">MallPlan</div>
+    </div>
+    <div class="topbar-spacer"></div>
+    <button class="btn-sm primary" onclick="showAddShop()">＋ 添加</button>
+  </div>
+
+  <!-- 内容区 -->
+  <div class="content">
+    <!-- 工作台 -->
+    <div class="page active" id="pageHome">
+      <div class="card">
+        <div class="card-head">📊 今日重点</div>
+        <div id="todayList">
+          <div class="empty">暂无重点跟进铺位<br>点击"＋添加"开始</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">📋 全部铺位</div>
+        <div id="shopList">
+          <div class="empty">暂无铺位数据</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 测算页 -->
+    <div class="page" id="pageCalc">
+      <div class="card">
+        <div class="card-head">💰 快速报价</div>
+        <div class="field">
+          <label>选择铺位</label>
+          <select id="calcShop" onchange="onShopChange()">
+            <option value="">请选择铺位...</option>
+          </select>
+        </div>
+        <div class="quick-quote" id="quickResult" style="display:none">
+          <div class="label">建议租金</div>
+          <div class="price"><span class="yen">¥</span><span id="resultRent">0</span></div>
+          <div class="range">区间 ¥<span id="resultMin">0</span> - ¥<span id="resultMax">0</span>/㎡/月</div>
+        </div>
+        <button class="btn" id="btnCalc" onclick="doCalc()">开始测算</button>
+      </div>
+
+      <div class="card" id="merchantCard" style="display:none">
+        <div class="card-head">✅ 商户评估</div>
+        <div id="merchantResult"></div>
+      </div>
+    </div>
+
+    <!-- 我的 -->
+    <div class="page" id="pageMine">
+      <div class="card">
+        <div class="card-head">⚙️ 项目设置</div>
+        <div class="field">
+          <label>项目名称</label>
+          <input type="text" id="settingName" placeholder="石龙中山路项目">
+        </div>
+        <div class="field">
+          <label>城市级别</label>
+          <select id="settingCity">
+            <option value="一线">一线</option>
+            <option value="新一线" selected>新一线</option>
+            <option value="二线">二线</option>
+            <option value="三线">三线</option>
+            <option value="四线">四线</option>
+            <option value="五线">五线</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>商圈位置</label>
+          <select id="settingCircle">
+            <option value="核心商圈">核心商圈</option>
+            <option value="次核心" selected>次核心</option>
+            <option value="社区">社区</option>
+            <option value="新兴">新兴</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>商场定位</label>
+          <select id="settingMall">
+            <option value="高端">高端</option>
+            <option value="中高端">中高端</option>
+            <option value="中端" selected>中端</option>
+            <option value="大众">大众</option>
+            <option value="社区邻里">社区邻里</option>
+          </select>
+        </div>
+        <button class="btn" onclick="saveSettings()">保存设置</button>
+      </div>
+
+      <div class="card">
+        <div class="card-head">📊 数据管理</div>
+        <button class="btn btn-secondary" style="margin-bottom:10px" onclick="exportData()">📤 导出数据</button>
+        <button class="btn btn-secondary" style="background:rgba(227,91,106,.1);color:var(--rose);border-color:rgba(227,91,106,.3)" onclick="clearAll()">🗑️ 清空所有数据</button>
+        <div style="font-size:11px;color:var(--ink-3);margin-top:10px;text-align:center">
+          数据存储在手机本地，清除浏览器数据会丢失
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 底部导航 -->
+  <div class="tabbar">
+    <button class="active" onclick="switchTab('home',this)">
+      <span class="icon">📊</span>
+      <span>工作台</span>
+    </button>
+    <button onclick="switchTab('calc',this)">
+      <span class="icon">💰</span>
+      <span>测算</span>
+    </button>
+    <button onclick="switchTab('mine',this)">
+      <span class="icon">⚙️</span>
+      <span>我的</span>
+    </button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- 添加铺位弹窗 -->
+<div id="addModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;padding:20px;overflow-y:auto">
+  <div style="background:var(--bg-1);border:1px solid var(--line);border-radius:14px;max-width:500px;margin:20px auto;padding:20px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <div style="font-size:16px;font-weight:700">＋ 添加铺位</div>
+      <button style="background:none;border:none;color:var(--ink-3);font-size:20px;cursor:pointer" onclick="closeAddModal()">×</button>
+    </div>
+    <div class="field">
+      <label>铺位编号 *</label>
+      <input type="text" id="newShopId" placeholder="如: L2-015">
+    </div>
+    <div class="field">
+      <label>业态大类 *</label>
+      <select id="newBizL1" onchange="updateBizL2()">
+        <option value="餐饮" selected>餐饮</option>
+        <option value="零售">零售</option>
+        <option value="主力店">主力店</option>
+        <option value="娱乐休闲">娱乐休闲</option>
+        <option value="亲子教培">亲子教培</option>
+        <option value="生活配套">生活配套</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>细分业态 *</label>
+      <select id="newBizL2">
+        <option value="川渝火锅">川渝火锅</option>
+        <option value="现制茶饮">现制茶饮</option>
+        <option value="中式快餐">中式快餐</option>
+        <option value="精品咖啡">精品咖啡</option>
+        <option value="商务咖啡">商务咖啡</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>面积 (㎡) *</label>
+      <input type="number" id="newArea" placeholder="如: 150">
+    </div>
+    <div class="field">
+      <label>楼层</label>
+      <select id="newFloor">
+        <option value="L1">L1 层</option>
+        <option value="L2" selected>L2 层</option>
+        <option value="L3">L3 层</option>
+        <option value="L4">L4 层</option>
+        <option value="B1">B1 层</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>洽谈阶段</label>
+      <select id="newStage">
+        <option value="初接触">初接触</option>
+        <option value="看场">看场</option>
+        <option value="报价" selected>报价</option>
+        <option value="磋商">磋商</option>
+        <option value="签约准备">签约准备</option>
+      </select>
+    </div>
+    <button class="btn" onclick="saveNewShop()">保存铺位</button>
+  </div>
+</div>
+
+<script>
+/* ========== 数据层 ========== */
+const LS_KEY = "mallplan_mobile_v1";
+
+/* 简化版业态基准 */
+const BIZ_DATA = {
+  "川渝火锅": { baseRent: 380, turnover: 2000, grossMargin: 0.58, rentRatioMin: 0.12, rentRatioMax: 0.20, areaMin: 300, areaMax: 800 },
+  "现制茶饮": { baseRent: 800, turnover: 3200, grossMargin: 0.65, rentRatioMin: 0.10, rentRatioMax: 0.18, areaMin: 20, areaMax: 80 },
+  "中式快餐": { baseRent: 600, turnover: 3500, grossMargin: 0.58, rentRatioMin: 0.15, rentRatioMax: 0.25, areaMin: 60, areaMax: 200 },
+  "精品咖啡": { baseRent: 700, turnover: 3000, grossMargin: 0.65, rentRatioMin: 0.10, rentRatioMax: 0.18, areaMin: 30, areaMax: 120 },
+  "商务咖啡": { baseRent: 550, turnover: 2400, grossMargin: 0.62, rentRatioMin: 0.10, rentRatioMax: 0.18, areaMin: 60, areaMax: 180 },
+  "美式简餐汉堡": { baseRent: 600, turnover: 2800, grossMargin: 0.62, rentRatioMin: 0.12, rentRatioMax: 0.22, areaMin: 60, areaMax: 300 },
+  "粤菜茶餐厅": { baseRent: 340, turnover: 1600, grossMargin: 0.58, rentRatioMin: 0.15, rentRatioMax: 0.25, areaMin: 200, areaMax: 600 },
+  "国际大牌服饰": { baseRent: 1000, turnover: 2200, grossMargin: 0.65, rentRatioMin: 0.18, rentRatioMax: 0.28, areaMin: 100, areaMax: 300 },
+  "便利店": { baseRent: 400, turnover: 1800, grossMargin: 0.30, rentRatioMin: 0.08, rentRatioMax: 0.15, areaMin: 40, areaMax: 120 }
+};
+
+const COEFFS = {
+  city: { "一线":1.0, "新一线":0.78, "二线":0.62, "三线":0.48, "四线":0.36, "五线":0.27 },
+  circle: { "核心商圈":1.0, "次核心":0.78, "社区":0.55, "新兴":0.42 },
+  mall: { "高端":1.35, "中高端":1.12, "中端":1.0, "大众":0.78, "社区邻里":0.60 },
+  floor: { "L1":1.2, "L2":1.0, "L3":0.85, "L4":0.65, "B1":0.70 }
+};
+
+/* 根据业态大类更新细分业态选项 */
+function updateBizL2() {
+  const l1 = document.getElementById('newBizL1').value;
+  const l2sel = document.getElementById('newBizL2');
+  let options = [];
+  
+  if (l1 === "餐饮") {
+    options = ["川渝火锅","现制茶饮","中式快餐","精品咖啡","商务咖啡","粤菜茶餐厅","美式简餐汉堡"];
+  } else if (l1 === "零售") {
+    options = ["国际大牌服饰","轻奢服饰","运动服饰","化妆品集合","黄金饰品"];
+  } else if (l1 === "主力店") {
+    options = ["百货店","快时尚","精品超市"];
+  } else if (l1 === "娱乐休闲") {
+    options = ["健身会所/SPA","瑜伽普拉提","量贩式KTV","密室逃脱"];
+  } else if (l1 === "亲子教培") {
+    options = ["早教中心","儿童游乐","美术培训","舞蹈培训"];
+  } else if (l1 === "生活配套") {
+    options = ["便利店","药店","高端美发沙龙","口腔齿科"];
+  }
+  
+  l2sel.innerHTML = options.map(o => `<option value="${o}">${o}</option>`).join('');
+}
+
+let state = loadState();
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) return freshState();
+    return JSON.parse(raw);
+  } catch(e) { return freshState(); }
+}
+
+function freshState() {
+  return {
+    project: { name: "石龙中山路项目", city: "新一线", circle: "次核心", mall: "中端" },
+    shops: [],
+    deals: []
+  };
+}
+
+function saveState() {
+  try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch(e) {}
+}
+
+/* ========== 底部导航 ========== */
+function switchTab(tab, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tabbar button').forEach(b => b.classList.remove('active'));
+  document.getElementById('page' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+  if (btn) btn.classList.add('active');
+  
+  if (tab === 'home') renderHome();
+  if (tab === 'calc') renderCalc();
+}
+
+/* ========== 工作台 ========== */
+function renderHome() {
+  const todayList = document.getElementById('todayList');
+  const shopList = document.getElementById('shopList');
+  
+  if (state.shops.length === 0) {
+    todayList.innerHTML = '<div class="empty">暂无重点跟进铺位<br>点击"＋添加"开始</div>';
+    shopList.innerHTML = '<div class="empty">暂无铺位数据</div>';
+    return;
+  }
+  
+  /* 今日重点：按洽谈阶段排序 */
+  const priority = ["报价", "磋商", "签约准备"];
+  const sorted = state.shops
+    .filter(s => s.leaseStatus !== "已签约" && s.leaseStatus !== "已流失")
+    .sort((a,b) => priority.indexOf(a.negotiationStage||"初接触") - priority.indexOf(b.negotiationStage||"初接触"));
+  
+  todayList.innerHTML = sorted.slice(0, 5).map(shop => `
+    <div class="shop-card" onclick="viewShop('${shop.id}')">
+      <div class="shop-id">${shop.shopId || shop.id}</div>
+      <div class="shop-info">${shop.bizCategoryL2 || shop.biz || "未设业态"} · ${shop.buildingArea || shop.area || "?"}㎡ · ${shop.negotiationStage || "初接触"}</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <span class="badge ${getStageClass(shop.negotiationStage)}">${shop.negotiationStage || "初接触"}</span>
+        ${shop.rentQuote ? '<span class="badge ok">¥'+shop.rentQuote+'/㎡</span>' : ''}
+      </div>
+    </div>
+  `).join('');
+  
+  shopList.innerHTML = state.shops.map(shop => `
+    <div class="shop-card" onclick="viewShop('${shop.id}')">
+      <div class="shop-id">${shop.shopId || shop.id}</div>
+      <div class="shop-info">${shop.floor || "?"}层 · ${shop.buildingArea || shop.area || "?"}㎡ · ${shop.bizCategoryL2 || shop.biz || "未设业态"}</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <span class="badge ${getStatusClass(shop.leaseStatus)}">${shop.leaseStatus || "待招商"}</span>
+        ${shop.rentQuote ? '<span class="badge ok">¥'+shop.rentQuote+'/㎡</span>' : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+function getStageClass(stage) {
+  if (stage === "签约准备" || stage === "磋商") return "warn";
+  if (stage === "报价") return "ok";
+  return "";
+}
+
+function getStatusClass(status) {
+  if (status === "已签约") return "ok";
+  if (status === "意向洽谈") return "warn";
+  if (status === "已流失") return "err";
+  return "";
+}
+
+function viewShop(id) {
+  /* 切换到测算页并选中该铺位 */
+  const shop = state.shops.find(s => s.id === id);
+  if (!shop) return;
+  
+  document.getElementById('calcShop').value = id;
+  switchTab('calc', document.querySelector('.tabbar button:nth-child(2)'));
+  doCalc();
+}
+
+/* ========== 测算页 ========== */
+function renderCalc() {
+  const sel = document.getElementById('calcShop');
+  sel.innerHTML = '<option value="">请选择铺位...</option>' +
+    state.shops.map(s => `<option value="${s.id}">${s.shopId || s.id} · ${s.bizCategoryL2 || s.biz || "?"} · ${s.buildingArea || s.area || "?"}㎡</option>`).join('');
+}
+
+function onShopChange() {
+  const shopId = document.getElementById('calcShop').value;
+  if (!shopId) { document.getElementById('quickResult').style.display = 'none'; return; }
+  doCalc();
+}
+
+function doCalc() {
+  const shopId = document.getElementById('calcShop').value;
+  if (!shopId) { toast("请先选择铺位"); return; }
+  
+  const shop = state.shops.find(s => s.id === shopId);
+  if (!shop) return;
+  
+  const bizL2 = shop.bizCategoryL2 || shop.biz || "中式快餐";
+  const bizData = BIZ_DATA[bizL2] || BIZ_DATA["中式快餐"];
+  const area = +shop.buildingArea || +shop.area || 100;
+  const floor = shop.floor || "L2";
+  
+  /* 简化版定价 */
+  const cityCoef = COEFFS.city[state.project.city] || 1.0;
+  const circleCoef = COEFFS.circle[state.project.circle] || 1.0;
+  const mallCoef = COEFFS.mall[state.project.mall] || 1.0;
+  const floorCoef = COEFFS.floor[floor] || 1.0;
+  
+  const baseRent = bizData.baseRent * cityCoef * circleCoef * mallCoef * floorCoef;
+  const minRent = baseRent * 0.85;
+  const maxRent = baseRent * 1.15;
+    
+  document.getElementById('resultRent').textContent = Math.round(baseRent);
+  document.getElementById('resultMin').textContent = Math.round(minRent);
+  document.getElementById('resultMax').textContent = Math.round(maxRent);
+  document.getElementById('quickResult').style.display = 'block';
+    
+  /* 商户评估 */
+  const monthlyRevenue = bizData.turnover * area;
+  const rentCost = baseRent * area;
+  const variableCost = monthlyRevenue * (1 - bizData.grossMargin);
+  const monthlyProfit = monthlyRevenue - variableCost - rentCost;
+  const rentRatio = rentCost / monthlyRevenue;
+    
+  let health = "";
+  if (rentRatio >= bizData.rentRatioMin && rentRatio <= bizData.rentRatioMax) {
+    health = '<span class="badge ok">✅ 健康 (租售比' + (rentRatio*100).toFixed(1) + '%)</span>';
+  } else if (rentRatio > bizData.rentRatioMax) {
+    health = '<span class="badge err">⚠️ 风险 (租售比' + (rentRatio*100).toFixed(1) + '% 过高)</span>';
+  } else {
+    health = '<span class="badge warn">💡 租售比' + (rentRatio*100).toFixed(1) + '% 偏低</span>';
+  }
+    
+  document.getElementById('merchantResult').innerHTML = `
+    <div style="margin-bottom:10px">${health}</div>
+    <div style="font-size:12px;color:var(--ink-3);line-height:1.8">
+      <div>月营业额：<b style="color:var(--ink-1)">¥${(monthlyRevenue).toLocaleString('zh-CN')}</b></div>
+      <div>月租金：<b style="color:var(--ink-1)">¥${(rentCost).toLocaleString('zh-CN')}</b></div>
+      <div>月利润：<b style="color:var(--teal)">¥${(monthlyProfit).toLocaleString('zh-CN')}</b></div>
+      <div>回收期：<b style="color:var(--ink-1)">${Math.ceil((+bizData.areaMin * 1300 + 200000) / (monthlyProfit || 1))} 个月</b></div>
+    </div>
+  `;
+  document.getElementById('merchantCard').style.display = 'block';
+}
+
+/* ========== 添加铺位 ========== */
+function showAddShop() {
+  document.getElementById('addModal').style.display = 'block';
+  updateBizL2();
+}
+
+function closeAddModal() {
+  document.getElementById('addModal').style.display = 'none';
+}
+
+function saveNewShop() {
+  const shopId = document.getElementById('newShopId').value.trim();
+  const bizL2 = document.getElementById('newBizL2').value;
+  const area = document.getElementById('newArea').value;
+  const floor = document.getElementById('newFloor').value;
+  const stage = document.getElementById('newStage').value;
+  const bizL1 = document.getElementById('newBizL1').value;
+  
+  if (!shopId) { toast("请输入铺位编号"); return; }
+  if (!area) { toast("请输入面积"); return; }
+  
+  const shop = {
+    id: 'shop_' + Date.now(),
+    shopId: shopId,
+    bizCategoryL1: bizL1,
+    bizCategoryL2: bizL2,
+    buildingArea: area,
+    floor: floor,
+    negotiationStage: stage,
+    leaseStatus: "待招商",
+    rentQuote: "",
+    createdAt: new Date().toISOString()
+  };
+  
+  state.shops.push(shop);
+  saveState();
+  closeAddModal();
+  toast("铺位添加成功");
+  renderHome();
+  
+  /* 清空表单 */
+  document.getElementById('newShopId').value = '';
+  document.getElementById('newArea').value = '';
+}
+
+/* ========== 设置页 ========== */
+function saveSettings() {
+  state.project.name = document.getElementById('settingName').value || state.project.name;
+  state.project.city = document.getElementById('settingCity').value;
+  state.project.circle = document.getElementById('settingCircle').value;
+  state.project.mall = document.getElementById('settingMall').value;
+  saveState();
+  toast("设置已保存");
+}
+
+/* 初始化设置表单 */
+function initSettings() {
+  document.getElementById('settingName').value = state.project.name || "";
+  document.getElementById('settingCity').value = state.project.city || "新一线";
+  document.getElementById('settingCircle').value = state.project.circle || "次核心";
+  document.getElementById('settingMall').value = state.project.mall || "中端";
+}
+
+/* ========== 数据管理 ========== */
+function exportData() {
+  const blob = new Blob([JSON.stringify(state, null, 2)], {type: 'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'mallplan_' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 100);
+  toast("数据已导出");
+}
+
+function clearAll() {
+  if (confirm("确定清空所有数据？此操作不可恢复！")) {
+    localStorage.removeItem(LS_KEY);
+    state = freshState();
+    renderHome();
+    toast("已清空所有数据");
+  }
+}
+
+/* ========== Toast ========== */
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+/* ========== PWA 注册 ========== */
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+
+/* ========== 初始化 ========== */
+initSettings();
+renderHome();
+</script>
+</body>
+</html>

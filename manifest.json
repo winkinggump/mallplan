@@ -1,0 +1,22 @@
+{
+  "name": "MallPlan 铺位算账本",
+  "short_name": "MallPlan",
+  "description": "商业地产铺位招商管理系统 - 手机版",
+  "start_url": "/mallplan/MallPlan-mobile.html",
+  "display": "standalone",
+  "background_color": "#0b0e14",
+  "theme_color": "#0b0e14",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
