@@ -1,0 +1,2450 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MallPlan 投拓测算 v1.0</title>
+<style>
+:root{--c-ink:#1a1f2e;--c-ink-soft:#3d4658;--c-ink-muted:#6e7689;--c-line:#e4e1d8;--c-line-soft:#efece4;--c-paper:#faf8f3;--c-surface:#fff;--c-surface-2:#f5f2ea;--c-navy:#1e3a5f;--c-navy-soft:#2d4f7f;--c-gold:#b88a4a;--c-gold-soft:#d4a866;--c-positive:#2d6a4f;--c-warning:#c08a2e;--c-danger:#a83246;--c-info:#2d5f8f;--c-violet:#5a3d7a;--c-violet-soft:#7a5d9a;--f-display:'Noto Serif SC','Songti SC','STSong',serif;--f-body:'Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;--f-mono:'JetBrains Mono','SF Mono',Consolas,monospace;--s-1:4px;--s-2:8px;--s-3:12px;--s-4:16px;--s-5:20px;--s-6:24px;--s-7:32px;--s-8:40px;--r-sm:3px;--r-md:6px;--r-lg:10px;--sh-1:0 1px 2px rgba(26,31,46,.04),0 1px 1px rgba(26,31,46,.03);--sh-2:0 2px 8px rgba(26,31,46,.06),0 1px 2px rgba(26,31,46,.04);--sh-3:0 8px 24px rgba(26,31,46,.08),0 2px 6px rgba(26,31,46,.04)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:14px}
+body{font-family:var(--f-body);color:var(--c-ink);background:var(--c-paper);line-height:1.55}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input,select,textarea{font-family:inherit;font-size:inherit;color:inherit}
+table{border-collapse:collapse;width:100%}
+.topbar{position:sticky;top:0;z-index:50;background:var(--c-surface);border-bottom:1px solid var(--c-line);height:64px;display:flex;align-items:center;padding:0 var(--s-7);gap:var(--s-4)}
+.brand{display:flex;align-items:center;gap:var(--s-3)}
+.brand-mark{width:36px;height:36px;background:var(--c-navy);color:var(--c-gold-soft);display:grid;place-items:center;font-family:var(--f-display);font-weight:700;font-size:18px;border-radius:var(--r-sm);position:relative}
+.brand-mark::after{content:'';position:absolute;inset:3px;border:1px solid var(--c-gold);border-radius:2px}
+.brand-text{display:flex;flex-direction:column;line-height:1.1}
+.brand-text .name{font-family:var(--f-display);font-size:16px;font-weight:600;color:var(--c-ink);letter-spacing:.02em}
+.brand-text .sub{font-size:10px;color:var(--c-ink-muted);letter-spacing:.15em;text-transform:uppercase;margin-top:2px}
+.type-switcher{display:flex;background:var(--c-surface-2);border-radius:var(--r-md);padding:3px}
+.type-switcher button{padding:6px 16px;font-size:13px;color:var(--c-ink-soft);border-radius:4px;transition:all .2s;font-weight:500}
+.type-switcher button:hover{color:var(--c-ink)}
+.type-switcher button.active{background:var(--c-navy);color:#fff;box-shadow:var(--sh-1)}
+.topbar-spacer{flex:1}
+.project-tag{display:flex;align-items:center;gap:var(--s-2);padding:4px 10px;background:var(--c-surface-2);border-radius:var(--r-sm);font-size:11px;color:var(--c-ink-soft)}
+.top-actions{display:flex;gap:var(--s-2);align-items:center}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;font-size:12px;font-weight:500;border-radius:var(--r-md);border:1px solid transparent;transition:all .15s;white-space:nowrap}
+.btn-ghost{color:var(--c-ink-soft);border-color:var(--c-line);background:var(--c-surface)}
+.btn-ghost:hover{color:var(--c-ink);border-color:var(--c-ink-muted);background:var(--c-surface-2)}
+.btn-primary{background:var(--c-navy);color:#fff}
+.btn-sm{padding:5px 10px;font-size:12px}
+.btn-xs{padding:3px 8px;font-size:11px}
+.dropdown{position:relative}
+.dropdown-menu{position:absolute;top:calc(100% + 6px);right:0;min-width:200px;background:var(--c-surface);border:1px solid var(--c-line);border-radius:var(--r-md);box-shadow:var(--sh-3);padding:6px;display:none;z-index:100}
+.dropdown.open .dropdown-menu{display:block}
+.dropdown-menu button{display:flex;align-items:center;gap:10px;width:100%;padding:8px 12px;font-size:13px;color:var(--c-ink);border-radius:var(--r-sm);text-align:left}
+.dropdown-menu button:hover{background:var(--c-surface-2)}
+.dropdown-divider{height:1px;background:var(--c-line-soft);margin:4px 0}
+.app-shell{display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 64px)}
+.sidebar{background:var(--c-surface);border-right:1px solid var(--c-line);padding:var(--s-5) 0;position:sticky;top:64px;height:calc(100vh - 64px);overflow-y:auto}
+.nav-section{padding:0 var(--s-4);margin-bottom:var(--s-5)}
+.nav-section-title{font-size:10px;color:var(--c-ink-muted);letter-spacing:.18em;text-transform:uppercase;font-weight:600;margin-bottom:var(--s-3);padding:0 var(--s-3);display:flex;align-items:center;gap:var(--s-2)}
+.nav-section-title::before{content:'';width:12px;height:1px;background:var(--c-gold)}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 12px;margin-bottom:2px;font-size:13px;color:var(--c-ink-soft);border-radius:var(--r-sm);cursor:pointer;transition:all .15s;border-left:2px solid transparent}
+.nav-item:hover{background:var(--c-surface-2);color:var(--c-ink)}
+.nav-item.active{background:var(--c-surface-2);color:var(--c-navy);border-left-color:var(--c-gold);font-weight:500}
+.nav-item .nav-num{font-family:var(--f-display);font-size:11px;color:var(--c-ink-muted);width:18px;font-weight:600}
+.main{padding:var(--s-6) var(--s-7);max-width:1400px}
+.page-head{margin-bottom:var(--s-6);padding-bottom:var(--s-4);border-bottom:1px solid var(--c-line)}
+.breadcrumb{font-size:11px;color:var(--c-ink-muted);letter-spacing:.12em;text-transform:uppercase;margin-bottom:var(--s-3);font-weight:500}
+.page-title{font-family:var(--f-display);font-size:26px;font-weight:600;color:var(--c-ink);letter-spacing:-.01em;margin-bottom:var(--s-2)}
+.page-desc{color:var(--c-ink-muted);font-size:13px;max-width:720px}
+.card{background:var(--c-surface);border:1px solid var(--c-line);border-radius:var(--r-md);padding:var(--s-5);margin-bottom:var(--s-5);box-shadow:var(--sh-1)}
+.card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--s-4);padding-bottom:var(--s-3);border-bottom:1px solid var(--c-line-soft)}
+.card-title{font-family:var(--f-display);font-size:16px;font-weight:600;color:var(--c-ink);display:flex;align-items:center;gap:10px}
+.card-title::before{content:'';width:3px;height:14px;background:var(--c-gold)}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:var(--s-3) var(--s-4)}
+.form-row{display:flex;flex-direction:column;gap:4px}
+.form-label{font-size:12px;color:var(--c-ink-soft);font-weight:500;display:flex;align-items:center;gap:4px}
+.form-label .hint{color:var(--c-ink-muted);font-weight:400;font-size:11px}
+.form-label .req{color:var(--c-danger);font-size:11px}
+.form-input,.form-select{width:100%;padding:7px 10px;font-size:13px;background:var(--c-surface);border:1px solid var(--c-line);border-radius:var(--r-sm);color:var(--c-ink);transition:border-color .15s;font-variant-numeric:tabular-nums}
+.form-input:focus,.form-select:focus{outline:none;border-color:var(--c-navy);box-shadow:0 0 0 3px rgba(30,58,95,.08)}
+.form-input.numeric{font-family:var(--f-mono);text-align:right}
+.form-suffix{position:relative}
+.form-suffix input{padding-right:36px}
+.form-suffix .suffix{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--c-ink-muted)}
+.form-input[readonly],.form-input.derived{background:var(--c-surface-2);color:var(--c-ink-soft);cursor:not-allowed}
+.data-table{width:100%;font-size:13px;font-variant-numeric:tabular-nums}
+.data-table thead th{text-align:left;font-weight:600;font-size:11.5px;color:var(--c-ink-soft);letter-spacing:.04em;text-transform:uppercase;padding:9px 12px;background:var(--c-surface-2);border-bottom:1px solid var(--c-line);white-space:nowrap}
+.data-table thead th.num{text-align:right}
+.data-table tbody td{padding:8px 12px;border-bottom:1px solid var(--c-line-soft);color:var(--c-ink)}
+.data-table tbody td.num{text-align:right;font-family:var(--f-mono);font-size:12.5px}
+.data-table tbody tr:hover{background:var(--c-surface-2)}
+.data-table tbody td input,.data-table tbody td select{width:100%;border:none;background:transparent;text-align:right;font-family:var(--f-mono);font-size:12.5px;padding:2px 4px;border-radius:2px}
+.data-table tbody td input:focus{outline:none;background:rgba(184,138,74,.08);box-shadow:inset 0 0 0 1px var(--c-gold)}
+.data-table tbody tr.total td{border-bottom:2px solid var(--c-ink);font-weight:700;background:var(--c-surface-2)}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:var(--s-3);margin-bottom:var(--s-4)}
+.kpi{background:var(--c-surface);border:1px solid var(--c-line);border-left:3px solid var(--c-gold);padding:var(--s-3) var(--s-4);border-radius:var(--r-sm)}
+.kpi-label{font-size:11px;color:var(--c-ink-muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px;font-weight:500}
+.kpi-value{font-family:var(--f-display);font-size:22px;font-weight:600;color:var(--c-ink);font-variant-numeric:tabular-nums;line-height:1.1;display:flex;align-items:baseline;gap:4px}
+.kpi-value .unit{font-family:var(--f-body);font-size:12px;color:var(--c-ink-muted);font-weight:400}
+.kpi-trend{font-size:11px;color:var(--c-ink-muted);margin-top:4px}
+.kpi.positive .kpi-value{color:var(--c-positive)}
+.kpi.negative .kpi-value{color:var(--c-danger)}
+.kpi.highlight{border-left-color:var(--c-navy);background:linear-gradient(180deg,var(--c-surface),var(--c-surface-2))}
+.tabs{display:flex;border-bottom:1px solid var(--c-line);margin-bottom:var(--s-4);flex-wrap:wrap}
+.tab{padding:9px 16px;font-size:13px;font-weight:500;color:var(--c-ink-muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s}
+.tab.active{color:var(--c-navy);border-bottom-color:var(--c-gold)}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;font-size:11px;font-weight:500;border-radius:10px;background:var(--c-surface-2);color:var(--c-ink-soft)}
+.badge.positive{background:rgba(45,106,79,.1);color:var(--c-positive)}
+.badge.warning{background:rgba(192,138,46,.1);color:var(--c-warning)}
+.badge.danger{background:rgba(168,50,70,.1);color:var(--c-danger)}
+.badge.info{background:rgba(45,95,143,.1);color:var(--c-info)}
+.notice{display:flex;gap:var(--s-3);padding:var(--s-3) var(--s-4);background:rgba(184,138,74,.06);border-left:3px solid var(--c-gold);border-radius:0 var(--r-sm) var(--r-sm) 0;font-size:12.5px;color:var(--c-ink-soft);margin-bottom:var(--s-4)}
+.table-wrap{overflow-x:auto;margin:0 calc(-1 * var(--s-2));padding:0 var(--s-2)}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:var(--s-4)}
+@media(max-width:1100px){.two-col{grid-template-columns:1fr}}
+.mode-intro{background:var(--c-surface);border:1px solid var(--c-line);border-left:4px solid var(--c-gold);border-radius:var(--r-md);padding:var(--s-5) var(--s-6);margin-bottom:var(--s-5);box-shadow:var(--sh-1)}
+.mode-intro-head{display:flex;align-items:center;gap:14px;margin-bottom:10px}
+.mode-intro-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.mode-intro-icon.lease{background:rgba(184,138,74,.12);color:var(--c-gold)}
+.mode-intro-icon.dev{background:rgba(45,95,143,.12);color:var(--c-navy)}
+.mode-intro-icon.ent{background:rgba(90,61,122,.12);color:var(--c-violet)}
+.mode-intro h3{font-size:17px;font-weight:600;color:var(--c-ink)}
+.mode-intro .sub{font-size:12px;color:var(--c-ink-muted)}
+.dashboard-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--s-3);margin-bottom:var(--s-4)}
+.dash-card{background:var(--c-surface);border:1px solid var(--c-line);border-radius:var(--r-md);padding:var(--s-4);box-shadow:var(--sh-1);border-top:3px solid var(--c-navy)}
+.dash-card.green{border-top-color:var(--c-positive)}
+.dash-card.amber{border-top-color:var(--c-warning)}
+.dash-card.red{border-top-color:var(--c-danger)}
+.dash-card.purple{border-top-color:var(--c-violet)}
+.dash-card.gold{border-top-color:var(--c-gold)}
+.dash-label{font-size:11px;color:var(--c-ink-muted);letter-spacing:.04em;font-weight:500;margin-bottom:4px}
+.dash-value{font-family:var(--f-display);font-size:28px;font-weight:700;color:var(--c-ink);line-height:1.1}
+.dash-value .unit{font-family:var(--f-body);font-size:13px;color:var(--c-ink-muted);font-weight:400;margin-left:2px}
+.dash-sub{font-size:11px;color:var(--c-ink-muted);margin-top:4px}
+.decision-banner{padding:var(--s-4) var(--s-5);border-radius:var(--r-md);font-size:15px;font-weight:700;text-align:center;margin-bottom:var(--s-4);letter-spacing:.5px}
+.decision-banner.go{background:rgba(45,106,79,.1);color:var(--c-positive);border:1px solid var(--c-positive)}
+.decision-banner.warn{background:rgba(192,138,46,.1);color:var(--c-warning);border:1px solid var(--c-warning)}
+.decision-banner.no{background:rgba(168,50,70,.1);color:var(--c-danger);border:1px solid var(--c-danger)}
+.mode-select-card{border:2px solid var(--c-line);border-radius:var(--r-md);cursor:pointer;transition:all .15s;padding:16px;background:var(--c-surface)}
+.mode-select-card:hover{border-color:var(--c-gold-soft);box-shadow:var(--sh-2)}
+.mode-select-card.active{border-color:var(--c-navy);background:rgba(30,58,95,.04)}
+.mode-flow-step{padding:5px 12px;background:var(--c-surface-2);border:1px solid var(--c-line);border-radius:14px;font-size:11px;font-weight:600;white-space:nowrap}
+.mode-flow-arrow{color:var(--c-ink-muted);font-size:12px;font-weight:700}
+.collapse-head{display:flex;align-items:center;justify-content:space-between;padding:var(--s-3) 0;cursor:pointer;-webkit-user-select:none;user-select:none}
+.collapse-body{display:none;padding:var(--s-2) 0}
+.collapse.open .collapse-body{display:block}
+.modal-mask{position:fixed;inset:0;background:rgba(26,31,46,.4);backdrop-filter:blur(2px);z-index:200;display:none;align-items:center;justify-content:center;padding:var(--s-5)}
+.modal-mask.open{display:flex}
+.modal{background:var(--c-surface);border-radius:var(--r-lg);max-width:540px;width:100%;box-shadow:var(--sh-3);overflow:hidden}
+.modal-head{padding:var(--s-4) var(--s-5);border-bottom:1px solid var(--c-line-soft);display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-family:var(--f-display);font-size:16px;font-weight:600}
+.modal-body{padding:var(--s-4) var(--s-5);font-size:13px;color:var(--c-ink-soft);line-height:1.6}
+.modal-foot{padding:var(--s-3) var(--s-5);border-top:1px solid var(--c-line-soft);display:flex;justify-content:flex-end;gap:var(--s-2);background:var(--c-surface-2)}
+.toast-stack{position:fixed;top:80px;right:24px;z-index:1000;display:flex;flex-direction:column;gap:8px}
+.toast-msg{background:var(--c-surface);border:1px solid var(--c-line);border-left:3px solid var(--c-positive);padding:10px 14px;border-radius:var(--r-sm);box-shadow:var(--sh-3);font-size:13px;min-width:220px;animation:slideIn .3s ease}
+.toast-msg.warning{border-left-color:var(--c-warning)}.toast-msg.danger{border-left-color:var(--c-danger)}
+@keyframes slideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+.footer{padding:var(--s-6) var(--s-7);border-top:1px solid var(--c-line);font-size:11.5px;color:var(--c-ink-muted);display:flex;align-items:center;justify-content:space-between}
+.footer .rule{display:inline-block;width:24px;height:1px;background:var(--c-gold);margin:0 8px;vertical-align:middle}
+.icon-btn{width:26px;height:26px;display:inline-grid;place-items:center;border-radius:var(--r-sm);color:var(--c-ink-muted)}
+.icon-btn:hover{background:var(--c-surface-2);color:var(--c-ink)}.icon-btn.danger:hover{background:rgba(168,50,70,.1);color:var(--c-danger)}
+@media print{.topbar,.sidebar,.footer,.top-actions,.card-actions{display:none!important}.app-shell{grid-template-columns:1fr}.main{padding:20px}}
+::-webkit-scrollbar{width:6px}.sidebar::-webkit-scrollbar-track{background:transparent}.sidebar::-webkit-scrollbar-thumb{background:var(--c-line);border-radius:3px}
+</style>
+<script src="https://unpkg.com/docx@9.5.1/build/index.umd.min.js"></script>
+<script src="https://unpkg.com/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+<style id="mallplan-m5-css">
+
+/* ============================================================
+   M5 · MallPlan 模块切换器
+   ============================================================ */
+.mallplan-switcher{
+  position:fixed; top:8px; right:12px; z-index:9000;
+  background:linear-gradient(135deg, #fff 0%, #fdfaf2 100%);
+  border:1px solid #e8dcc4; border-radius:24px;
+  padding:5px 6px 5px 14px;
+  display:flex; align-items:center; gap:4px;
+  box-shadow:0 2px 12px rgba(0,0,0,.08);
+  font-size:12.5px; font-family:"Microsoft YaHei","PingFang SC",sans-serif;
+}
+.mallplan-switcher .mp-brand{
+  font-weight:700; color:#c98828; letter-spacing:.5px;
+  margin-right:6px; padding-right:8px;
+  border-right:1px solid #e8dcc4;
+}
+.mallplan-switcher .mp-mod{
+  display:inline-flex; align-items:center; gap:4px;
+  padding:5px 12px; border-radius:14px;
+  color:#555; text-decoration:none;
+  transition:all .15s ease;
+}
+.mallplan-switcher .mp-mod:hover{
+  background:#f5f2ea; color:#1a1a1a;
+}
+.mallplan-switcher .mp-mod.active{
+  background:#c98828; color:#fff; font-weight:600;
+  box-shadow:0 1px 4px rgba(201,136,40,.3);
+}
+@media (max-width:900px){
+  .mallplan-switcher{
+    top:auto; bottom:8px; left:8px; right:8px;
+    border-radius:12px; padding:6px;
+    justify-content:space-around; font-size:11.5px;
+  }
+  .mallplan-switcher .mp-brand{ display:none; }
+  .mallplan-switcher .mp-mod{ padding:6px 10px; flex:1; justify-content:center; }
+}
+@media print{ .mallplan-switcher{ display:none !important; } }
+
+/* ============================================================
+   M5 · UI bug 修复: 输入框单位不再压字
+   ============================================================ */
+.form-suffix{ display:flex !important; align-items:stretch; gap:0; }
+.form-suffix input{ flex:1 1 auto; min-width:0; padding-right:8px !important; border-top-right-radius:0; border-bottom-right-radius:0; border-right:none; }
+.form-suffix .suffix{
+  position:static !important;
+  flex:0 0 auto;
+  background:#f5f2ea !important;
+  border:1px solid #d8d8d8;
+  border-left:none;
+  padding:6px 10px;
+  display:inline-flex; align-items:center;
+  color:#666; font-size:12px;
+  border-top-right-radius:4px; border-bottom-right-radius:4px;
+  white-space:nowrap;
+}
+/* 招商算账的输入框 */
+.input-wrap{ display:flex !important; align-items:stretch; gap:0; position:relative; }
+.input-wrap > .input{ flex:1 1 auto; min-width:0; border-top-right-radius:0; border-bottom-right-radius:0; border-right:none !important; padding-right:8px !important; }
+.input-wrap > .input + .suffix,
+.input-wrap > .input.with-suffix + .suffix,
+.input-wrap .input-suffix{
+  flex:0 0 auto; background:#f5f2ea; border:1px solid #d8d8d8; border-left:none;
+  padding:6px 10px; display:inline-flex; align-items:center;
+  color:#666; font-size:12px;
+  border-top-right-radius:4px; border-bottom-right-radius:4px;
+  white-space:nowrap;
+}
+
+</style>
+</head>
+<body>
+<div class="mallplan-switcher" id="mallplanSwitcher">
+  <span class="mp-brand">MallPlan</span>
+  <a href="MallPlan_投拓测算_v1.0.html" class="mp-mod mp-mod-toutuo active" data-mod="toutuo" title="投资可行性测算">📊 投拓测算</a>
+  <a href="MallPlan_定位落位_v1.0.html" class="mp-mod mp-mod-dingwei" data-mod="dingwei" title="业态定位 + 楼层落位">🗺️ 定位落位</a>
+  <a href="MallPlan_招商算账_v1.0.html" class="mp-mod mp-mod-zhaoshang" data-mod="zhaoshang" title="招商定价 + 商户测算">💼 招商算账</a>
+</div>
+
+
+<!-- ==================== 顶部导航条 ==================== -->
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-mark">M</div>
+    <div class="brand-text"><span class="name">MallPlan 投拓测算</span><span class="sub">Investment · v1.0</span></div>
+  </div>
+  <div class="type-switcher" id="typeSwitcher">
+    <button data-type="lease" class="active">包租项目</button>
+    <button data-type="dev">重资产开发</button>
+    <button data-type="ent">委托管理</button>
+  </div>
+  <div class="topbar-spacer"></div>
+  <div class="project-tag" id="projectTag"><span id="currentProjectName">未命名项目</span></div>
+  <div class="top-actions">
+    <button class="btn btn-ghost btn-sm" onclick="App.openHelp()">帮助</button>
+    <button class="btn btn-ghost btn-sm" onclick="App.newProject()">新建</button>
+    <div class="dropdown" id="demoDropdown">
+      <button class="btn btn-ghost btn-sm" onclick="App.toggleDropdown('demoDropdown')">案例 ▾</button>
+      <div class="dropdown-menu" style="min-width:280px">
+        <button onclick="App.loadDemoCase('dev')">🏗 重资产·上海徐汇滨江(12万方)</button>
+        <button onclick="App.loadDemoCase('lease')">📌 包租·武汉江汉路改造(8万方)</button>
+        <button onclick="App.loadDemoCase('ent')">🤝 委管·成都翡翠天地(5万方)</button>
+      </div>
+    </div>
+    <button class="btn btn-ghost btn-sm" id="licenseBtn" onclick="App.showActivateDialog()">🔑 免费版</button>
+    <button class="btn btn-ghost btn-sm" onclick="App.viewOverrideHistory()" title="本项目参数手工校准记录">📜 校准历史</button>
+    <div class="dropdown" id="exportDropdown">
+      <button class="btn btn-sm" onclick="App.toggleDropdown('exportDropdown')">导出 ▾</button>
+      <div class="dropdown-menu">
+        <button onclick="App.exportInvestmentReport()" style="font-weight:600;color:#c98828">📑 导出投决会报告 (Word)</button>
+        <div class="dropdown-divider"></div>
+        <button onclick="App.exportExcel()">导出 Excel 完整测算表</button>
+        <button onclick="App.exportPDF()">导出 PDF 投资报告</button>
+        <div class="dropdown-divider"></div>
+        <button onclick="App.exportJSON()">导出项目数据(JSON)</button>
+        <button onclick="App.importJSON()">导入项目数据(JSON)</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 主体 ==================== -->
+<div class="app-shell">
+  <nav class="sidebar" id="sidebar">
+    <div class="nav-section">
+      <div class="nav-section-title">投资测算</div>
+      <div class="nav-item active" data-page="basic" onclick="App.go('basic')"><span class="nav-num">01</span><span>基础信息</span></div>
+      <div class="nav-item" data-page="revenue" onclick="App.go('revenue')"><span class="nav-num">02</span><span>收入测算</span></div>
+      <div class="nav-item" data-page="cost" onclick="App.go('cost')"><span class="nav-num">03</span><span>成本测算</span></div>
+      <div class="nav-item" data-page="tax" onclick="App.go('tax')"><span class="nav-num">04</span><span>税务与财务</span></div>
+      <div class="nav-item" data-page="decision" onclick="App.go('decision')"><span class="nav-num">05</span><span>投资决策</span></div>
+      <div class="nav-item" data-page="sensitivity" onclick="App.go('sensitivity')"><span class="nav-num">06</span><span>敏感性分析</span></div>
+      <div class="nav-item" data-page="reports" onclick="App.go('reports')"><span class="nav-num">07</span><span>三张报表</span></div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">辅助工具</div>
+      <div class="nav-item" data-page="db" onclick="App.go('db')"><span class="nav-num">DB</span><span>参数数据库</span></div>
+    </div>
+  </nav>
+  <main class="main" id="mainContent"></main>
+</div>
+
+<div class="footer">
+  <div><strong style="color:var(--c-ink-soft)">投资测算 V10.1</strong><span class="rule"></span>包租 / 重资产开发 / 委托管理</div>
+  <div><span id="lastSaved">尚未保存</span></div>
+</div>
+
+<div class="toast-stack" id="toastStack"></div>
+<div class="modal-mask" id="modalMask">
+  <div class="modal">
+    <div class="modal-head"><div class="modal-title" id="modalTitle">提示</div><button class="icon-btn" onclick="App.closeModal()">✕</button></div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-foot"><button class="btn btn-ghost btn-sm" onclick="App.closeModal()">关闭</button></div>
+  </div>
+</div>
+
+<script>
+/* MallPlan Store 接口 v1.0 · 后端迁移预留 */
+window.MALLPLAN_MODULE = 'investment';
+/* ============================================================
+ * MallPlan Store · 统一存储接口 v1.0
+ * ============================================================
+ * 设计目的:
+ *   1. 为三个模块 (投拓测算/定位落位/招商算账) 提供一致的数据存储接口
+ *   2. 抽象 driver (local/remote),后端就绪后可一行切换
+ *   3. 每次写入自动附 _meta (updatedAt/updatedBy/version),为审计预留
+ *   4. 关键操作日志暂存本地,后端就绪后批量上送
+ *
+ * 使用:
+ *   await MallPlanStore.set('project_xxx', projectData);
+ *   const project = await MallPlanStore.get('project_xxx');
+ *   await MallPlanStore.log({action:'modify_reserved_price', shopId:'L2-15'});
+ *
+ * 切换为后端:
+ *   MallPlanStore.config.driver = 'remote';
+ *   MallPlanStore.config.apiBase = 'https://api.mallplan.com/v1';
+ *   MallPlanStore.config.token = '...';
+ * ============================================================ */
+const MallPlanStore = {
+  config: {
+    driver:   'local',                /* local | remote */
+    apiBase:  '',                     /* 后端 API 根地址,如 https://api.mallplan.com/v1 */
+    token:    '',                     /* 后端 Bearer Token */
+    keyPrefix:'mallplan_',            /* localStorage key 前缀,避免与其他应用冲突 */
+    schemaVersion: '1.0',             /* 当前数据结构版本 */
+    currentUser: '',                  /* 当前用户标识 (本地版可为空字符串,后端版必填) */
+    logBufferKey:'mallplan_audit_log',/* 审计日志缓冲区 key */
+    enableLog:true,                   /* 是否开启审计日志 */
+  },
+
+  /* —— 读 —— */
+  async get(key){
+    if(this.config.driver === 'remote'){
+      try{
+        const r = await fetch(`${this.config.apiBase}/kv/${encodeURIComponent(key)}`,{
+          headers:{ 'Authorization':`Bearer ${this.config.token}` }
+        });
+        if(!r.ok) return null;
+        const j = await r.json();
+        return j.value || null;
+      }catch(e){ console.warn('[MallPlanStore.get]',e); return null; }
+    }
+    /* local driver */
+    try{
+      const raw = localStorage.getItem(this.config.keyPrefix + key);
+      if(!raw) return null;
+      const wrapped = JSON.parse(raw);
+      /* 兼容:旧版没有 _meta 包裹的直接返回 */
+      return wrapped && wrapped._meta ? wrapped.data : wrapped;
+    }catch(e){ console.warn('[MallPlanStore.get]',e); return null; }
+  },
+
+  /* —— 写 —— */
+  async set(key, data){
+    const wrapped = {
+      _meta:{
+        updatedAt:    new Date().toISOString(),
+        updatedBy:    this.config.currentUser || '本地用户',
+        schemaVersion:this.config.schemaVersion,
+        driver:       this.config.driver,
+      },
+      data: data
+    };
+    if(this.config.driver === 'remote'){
+      try{
+        const r = await fetch(`${this.config.apiBase}/kv/${encodeURIComponent(key)}`,{
+          method:'PUT',
+          headers:{
+            'Content-Type':'application/json',
+            'Authorization':`Bearer ${this.config.token}`
+          },
+          body: JSON.stringify(wrapped)
+        });
+        return r.ok;
+      }catch(e){ console.warn('[MallPlanStore.set]',e); return false; }
+    }
+    /* local driver */
+    try{
+      localStorage.setItem(this.config.keyPrefix + key, JSON.stringify(wrapped));
+      return true;
+    }catch(e){ console.warn('[MallPlanStore.set]',e); return false; }
+  },
+
+  /* —— 删 —— */
+  async remove(key){
+    if(this.config.driver === 'remote'){
+      try{
+        const r = await fetch(`${this.config.apiBase}/kv/${encodeURIComponent(key)}`,{
+          method:'DELETE',
+          headers:{ 'Authorization':`Bearer ${this.config.token}` }
+        });
+        return r.ok;
+      }catch(e){ console.warn('[MallPlanStore.remove]',e); return false; }
+    }
+    try{ localStorage.removeItem(this.config.keyPrefix + key); return true; }
+    catch(e){ return false; }
+  },
+
+  /* —— 列出键 (前缀过滤) —— */
+  async list(prefix){
+    if(this.config.driver === 'remote'){
+      try{
+        const r = await fetch(`${this.config.apiBase}/kv?prefix=${encodeURIComponent(prefix||'')}`,{
+          headers:{ 'Authorization':`Bearer ${this.config.token}` }
+        });
+        if(!r.ok) return [];
+        const j = await r.json();
+        return j.keys || [];
+      }catch(e){ console.warn('[MallPlanStore.list]',e); return []; }
+    }
+    const full = this.config.keyPrefix + (prefix||'');
+    const keys = [];
+    for(let i=0;i<localStorage.length;i++){
+      const k = localStorage.key(i);
+      if(k && k.startsWith(full)) keys.push(k.substring(this.config.keyPrefix.length));
+    }
+    return keys;
+  },
+
+  /* —— 审计日志 (关键操作留痕) ——
+   * 用法: MallPlanStore.log({ action:'modify_rent', shopId:'L2-15', oldValue:20, newValue:22 })
+   * 本地版:写入 localStorage 缓冲区,可由用户/管理员手动导出查看
+   * 后端版:批量同步到服务器,不可删除 */
+  async log(entry){
+    if(!this.config.enableLog) return;
+    const fullEntry = {
+      ts:          new Date().toISOString(),
+      user:        this.config.currentUser || '本地用户',
+      module:      window.MALLPLAN_MODULE || 'unknown',  /* 各模块在初始化时设置 */
+      ...entry
+    };
+    if(this.config.driver === 'remote'){
+      /* 后端版:批量缓冲,每10条或30秒批量上送 */
+      try{
+        const buf = JSON.parse(localStorage.getItem(this.config.logBufferKey) || '[]');
+        buf.push(fullEntry);
+        localStorage.setItem(this.config.logBufferKey, JSON.stringify(buf));
+        if(buf.length >= 10) this._flushLogs();
+      }catch(e){ console.warn('[MallPlanStore.log]',e); }
+      return;
+    }
+    /* 本地版:直接累积存储 */
+    try{
+      const buf = JSON.parse(localStorage.getItem(this.config.logBufferKey) || '[]');
+      buf.push(fullEntry);
+      /* 本地版保留最近 1000 条,避免无限增长 */
+      if(buf.length > 1000) buf.splice(0, buf.length-1000);
+      localStorage.setItem(this.config.logBufferKey, JSON.stringify(buf));
+    }catch(e){ console.warn('[MallPlanStore.log]',e); }
+  },
+  async _flushLogs(){
+    if(this.config.driver !== 'remote') return;
+    try{
+      const buf = JSON.parse(localStorage.getItem(this.config.logBufferKey) || '[]');
+      if(buf.length === 0) return;
+      const r = await fetch(`${this.config.apiBase}/audit-logs`,{
+        method:'POST',
+        headers:{
+          'Content-Type':'application/json',
+          'Authorization':`Bearer ${this.config.token}`
+        },
+        body: JSON.stringify({ logs: buf })
+      });
+      if(r.ok) localStorage.setItem(this.config.logBufferKey, '[]');
+    }catch(e){ console.warn('[MallPlanStore._flushLogs]',e); }
+  },
+  /* 导出本地审计日志 (本地版导出 JSON,便于人工审阅) */
+  exportLogs(){
+    try{
+      return JSON.parse(localStorage.getItem(this.config.logBufferKey) || '[]');
+    }catch(e){ return []; }
+  },
+  clearLogs(){
+    if(!confirm('确认清空本地审计日志?清空后不可恢复。')) return;
+    localStorage.setItem(this.config.logBufferKey, '[]');
+  },
+};
+
+/* —— 兼容旧版 localStorage key 的迁移辅助 ——
+ * 各模块在 init 时调用 MallPlanStore.migrateLegacy(oldKey, newKey)
+ * 把旧 key 数据迁移到新 key 下,并保留 backup */
+MallPlanStore.migrateLegacy = function(oldKey, newKey){
+  try{
+    const oldData = localStorage.getItem(oldKey);
+    const newKeyFull = this.config.keyPrefix + newKey;
+    if(oldData && !localStorage.getItem(newKeyFull)){
+      /* 备份旧数据 */
+      localStorage.setItem(oldKey + '_backup_' + Date.now(), oldData);
+      /* 包装写入新 key */
+      const wrapped = {
+        _meta:{
+          updatedAt:     new Date().toISOString(),
+          updatedBy:     '迁移工具',
+          schemaVersion: this.config.schemaVersion,
+          migratedFrom:  oldKey,
+        },
+        data: JSON.parse(oldData)
+      };
+      localStorage.setItem(newKeyFull, JSON.stringify(wrapped));
+      console.info(`[MallPlanStore] 已迁移 ${oldKey} → ${newKeyFull}`);
+      return true;
+    }
+  }catch(e){ console.warn('[MallPlanStore.migrateLegacy]',e); }
+  return false;
+};
+
+/* —— 同步读写包装 (兼容旧代码,避免大改 await 链) ——
+ * 这一层用于现有同步代码逐步替换:
+ *   旧: localStorage.setItem('k', JSON.stringify(o))
+ *   新: MallPlanStore.setSync('k', o)
+ * 后端切换后,setSync 会自动改为 fire-and-forget 异步调用 + 内存缓存 */
+MallPlanStore.setSync = function(key, data){
+  if(this.config.driver === 'local'){
+    const wrapped = {
+      _meta:{
+        updatedAt:     new Date().toISOString(),
+        updatedBy:     this.config.currentUser || '本地用户',
+        schemaVersion: this.config.schemaVersion,
+        driver:        this.config.driver,
+      },
+      data: data
+    };
+    try{ localStorage.setItem(this.config.keyPrefix + key, JSON.stringify(wrapped)); return true; }
+    catch(e){ return false; }
+  }
+  /* remote: 异步触发,内存缓存,确保 UI 不卡 */
+  this._memCache = this._memCache || {};
+  this._memCache[key] = data;
+  this.set(key, data);  /* 触发但不等 */
+  return true;
+};
+MallPlanStore.getSync = function(key){
+  if(this.config.driver === 'local'){
+    try{
+      const raw = localStorage.getItem(this.config.keyPrefix + key);
+      if(!raw) return null;
+      const wrapped = JSON.parse(raw);
+      return wrapped && wrapped._meta ? wrapped.data : wrapped;
+    }catch(e){ return null; }
+  }
+  /* remote: 同步只能用内存缓存,需用户先调过 await get() */
+  this._memCache = this._memCache || {};
+  return this._memCache[key] || null;
+};
+
+/* ============================================================
+ * MallPlan Bridge · 跨模块数据互通桥 v1.0 · M6
+ * ============================================================
+ * 设计目的:
+ *   1. 三个模块 (投拓测算/定位落位/招商算账) 通过 Bridge 共享:
+ *      项目档案 (ProjectArchive) / 成交库 (DealLib) / 品牌库 (BrandLib)
+ *   2. 提供历史成交回归算法 (加权 P25/中位数/P75) — M6 杀手锏
+ *   3. 提供"本企业基准"快速查询 — 让投拓测算引用招商沉淀的真实数据
+ *
+ * 依赖: MallPlanStore (M1 已部署)
+ *
+ * 调用示例:
+ *   // 写入一笔成交 (招商算账触发)
+ *   MallPlanBridge.pushDeal({ projectId:'PRJ_...', brandName:'某品牌', ... });
+ *
+ *   // 查询同类历史成交分布 (投拓测算调用)
+ *   const stats = await MallPlanBridge.getDealStats({ cityTier:'一线', bizCategoryL1:'餐饮' });
+ *   // => { count:59, p25:4.58, p50:7.40, p75:9.80, byBiz:{...} }
+ *
+ *   // 查询本企业基准 (按业态分组的中位数租金)
+ *   const baseline = await MallPlanBridge.getEnterpriseBaseline({ cityTier:'一线' });
+ * ============================================================ */
+const MallPlanBridge = {
+  /* —— 置信度权重 (SCHEMA.md 5.3) —— */
+  CONFIDENCE_WEIGHT: { high: 1.0, mid: 0.7, low: 0.3 },
+
+  /* —— 阈值常量 —— */
+  MIN_SAMPLES_STATS:    5,    /* ≥5 笔才出统计 */
+  MIN_SAMPLES_RELIABLE: 50,   /* ≥50 笔标记"可靠阈值" */
+
+  /* ===================== 项目档案 ===================== */
+
+  /** 列出所有项目档案 */
+  async listProjects(){
+    try{
+      const ids = (await MallPlanStore.get('project_list')) || [];
+      const projects = [];
+      for(const id of ids){
+        const p = await MallPlanStore.get('project_' + id);
+        if(p) projects.push(p);
+      }
+      return projects;
+    }catch(e){ console.warn('[Bridge.listProjects]',e); return []; }
+  },
+
+  /** 读单个项目档案 */
+  async getProject(projectId){
+    if(!projectId) return null;
+    return await MallPlanStore.get('project_' + projectId);
+  },
+
+  /** 写项目档案 (返回完整数据,补全 projectId/createdAt) */
+  async putProject(project){
+    if(!project) return null;
+    if(!project.projectId){ project.projectId = this.generateProjectId(); }
+    const now = new Date().toISOString();
+    if(!project.createdAt) project.createdAt = now;
+    project.updatedAt = now;
+    project.schemaVersion = project.schemaVersion || '1.0';
+    await MallPlanStore.set('project_' + project.projectId, project);
+    const ids = (await MallPlanStore.get('project_list')) || [];
+    if(!ids.includes(project.projectId)){
+      ids.push(project.projectId);
+      await MallPlanStore.set('project_list', ids);
+    }
+    return project;
+  },
+
+  /** 生成 projectId: PRJ_YYYYMMDD_NNN */
+  generateProjectId(){
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth()+1).padStart(2,'0');
+    const day = String(d.getDate()).padStart(2,'0');
+    const rand = String(Math.floor(Math.random()*900)+100);
+    return `PRJ_${y}${m}${day}_${rand}`;
+  },
+
+  /* ===================== 成交库 ===================== */
+
+  async listDeals(){
+    try{
+      const ids = (await MallPlanStore.get('deal_list')) || [];
+      const deals = [];
+      for(const id of ids){
+        const d = await MallPlanStore.get('deal_' + id);
+        if(d) deals.push(d);
+      }
+      return deals;
+    }catch(e){ console.warn('[Bridge.listDeals]',e); return []; }
+  },
+
+  async pushDeal(deal){
+    if(!deal) return null;
+    if(!deal.dealId){
+      const d = new Date();
+      const ts = `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}${String(d.getHours()).padStart(2,'0')}${String(d.getMinutes()).padStart(2,'0')}${String(d.getSeconds()).padStart(2,'0')}`;
+      const rand = String(Math.floor(Math.random()*900)+100);
+      deal.dealId = `DEAL_${ts}_${rand}`;
+    }
+    deal.confidence = deal.confidence || 'mid';
+    deal.source     = deal.source     || '本项目签约';
+    deal.createdAt  = deal.createdAt  || new Date().toISOString();
+    deal.schemaVersion = deal.schemaVersion || '1.0';
+    if(deal.rentDaily && !deal.rentMonthly){ deal.rentMonthly = +(deal.rentDaily * 30).toFixed(2); }
+    else if(deal.rentMonthly && !deal.rentDaily){ deal.rentDaily = +(deal.rentMonthly / 30).toFixed(2); }
+    await MallPlanStore.set('deal_' + deal.dealId, deal);
+    const ids = (await MallPlanStore.get('deal_list')) || [];
+    if(!ids.includes(deal.dealId)){
+      ids.push(deal.dealId);
+      await MallPlanStore.set('deal_list', ids);
+    }
+    try{ MallPlanStore.log({ action:'bridge_push_deal', dealId:deal.dealId, brand:deal.brandName, biz:deal.bizCategoryL2, rentDaily:deal.rentDaily }); }catch(e){}
+    return deal;
+  },
+
+  async pushDealsBatch(deals){
+    if(!Array.isArray(deals)) return 0;
+    let ok = 0;
+    for(const d of deals){ const r = await this.pushDeal(d); if(r) ok++; }
+    return ok;
+  },
+
+  /* ===================== 历史回归 (M6 杀手锏) ===================== */
+
+  /**
+   * 按筛选条件查询成交统计 (加权百分位)
+   * @returns { count, reliable, hasStats, p25, p50, p75, mean, min, max, avgArea, byBiz, samples }
+   */
+  async getDealStats(filter){
+    filter = filter || {};
+    const allDeals = await this.listDeals();
+    const matched = allDeals.filter(d=>{
+      if(filter.cityTier      && d.cityTier      !== filter.cityTier)      return false;
+      if(filter.city          && d.city          !== filter.city)          return false;
+      if(filter.bizCategoryL1 && d.bizCategoryL1 !== filter.bizCategoryL1) return false;
+      if(filter.bizCategoryL2 && d.bizCategoryL2 !== filter.bizCategoryL2) return false;
+      if(filter.floorCode     && d.floorCode     !== filter.floorCode)     return false;
+      if(typeof d.rentDaily !== 'number' || d.rentDaily <= 0)              return false;
+      return true;
+    });
+
+    const result = {
+      filter:    filter,
+      count:     matched.length,
+      reliable:  matched.length >= this.MIN_SAMPLES_RELIABLE,
+      hasStats:  matched.length >= this.MIN_SAMPLES_STATS,
+      samples:   matched
+    };
+    if(matched.length === 0){
+      Object.assign(result, { p25:null, p50:null, p75:null, mean:null, min:null, max:null, avgArea:null, byBiz:{} });
+      return result;
+    }
+    const overall = this._calcPercentiles(matched.map(d=>({ v:d.rentDaily, w:this.CONFIDENCE_WEIGHT[d.confidence]||0.5 })));
+    Object.assign(result, overall);
+    const areas = matched.map(d=>d.buildingArea).filter(a=>typeof a==='number'&&a>0);
+    result.avgArea = areas.length ? +(areas.reduce((s,a)=>s+a,0)/areas.length).toFixed(0) : null;
+    const byBiz = {};
+    matched.forEach(d=>{
+      const k = d.bizCategoryL2 || '其他';
+      if(!byBiz[k]) byBiz[k] = [];
+      byBiz[k].push({ v:d.rentDaily, w:this.CONFIDENCE_WEIGHT[d.confidence]||0.5, area:d.buildingArea });
+    });
+    result.byBiz = {};
+    Object.keys(byBiz).forEach(k=>{
+      const arr = byBiz[k];
+      if(arr.length < 2){
+        result.byBiz[k] = { count:arr.length, p25:arr[0].v, p50:arr[0].v, p75:arr[0].v, mean:arr[0].v };
+        return;
+      }
+      result.byBiz[k] = this._calcPercentiles(arr);
+      result.byBiz[k].count = arr.length;
+    });
+    return result;
+  },
+
+  /** 加权百分位计算 (线性插值) */
+  _calcPercentiles(samples){
+    if(samples.length === 0) return { p25:null, p50:null, p75:null, mean:null, min:null, max:null };
+    const sorted = samples.slice().sort((a,b)=>a.v - b.v);
+    const totalW = sorted.reduce((s,x)=>s+x.w, 0);
+    const findPct = (pct)=>{
+      const target = totalW * pct;
+      let cum = 0;
+      for(let i=0; i<sorted.length; i++){
+        cum += sorted[i].w;
+        if(cum >= target){
+          if(i === 0) return sorted[0].v;
+          const prevCum = cum - sorted[i].w;
+          const ratio = (target - prevCum) / sorted[i].w;
+          return sorted[i-1].v + (sorted[i].v - sorted[i-1].v) * ratio;
+        }
+      }
+      return sorted[sorted.length-1].v;
+    };
+    const mean = sorted.reduce((s,x)=>s + x.v*x.w, 0) / totalW;
+    return {
+      p25:  +findPct(0.25).toFixed(2),
+      p50:  +findPct(0.50).toFixed(2),
+      p75:  +findPct(0.75).toFixed(2),
+      mean: +mean.toFixed(2),
+      min:  +sorted[0].v.toFixed(2),
+      max:  +sorted[sorted.length-1].v.toFixed(2)
+    };
+  },
+
+  /* ===================== 本企业基准 (投拓核心入口) ===================== */
+
+  /**
+   * 按业态大类返回基准租金 (元/㎡/月) — 给投拓测算用
+   * @returns { hasData, count, reliable, baseline: { '餐饮':{p50_daily,p50_monthly,count}, ... }, overall, source }
+   */
+  async getEnterpriseBaseline(filter){
+    filter = filter || {};
+    const allDeals = await this.listDeals();
+    const matched = allDeals.filter(d=>{
+      if(filter.cityTier && d.cityTier !== filter.cityTier) return false;
+      if(filter.city     && d.city     !== filter.city)     return false;
+      if(typeof d.rentDaily !== 'number' || d.rentDaily <= 0) return false;
+      return true;
+    });
+    const result = {
+      hasData:   matched.length >= this.MIN_SAMPLES_STATS,
+      count:     matched.length,
+      reliable:  matched.length >= this.MIN_SAMPLES_RELIABLE,
+      filter:    filter,
+      baseline:  {},
+      source:    matched.length > 0 ? '本企业历史成交' : '无数据'
+    };
+    if(matched.length === 0) return result;
+    const groups = {};
+    matched.forEach(d=>{
+      const k = d.bizCategoryL1 || '其他';
+      if(!groups[k]) groups[k] = [];
+      groups[k].push({ v:d.rentDaily, w:this.CONFIDENCE_WEIGHT[d.confidence]||0.5 });
+    });
+    Object.keys(groups).forEach(k=>{
+      const arr = groups[k];
+      const stat = this._calcPercentiles(arr);
+      result.baseline[k] = {
+        count:        arr.length,
+        p50_daily:    stat.p50,
+        p50_monthly:  +(stat.p50 * 30).toFixed(0),
+        p25_daily:    stat.p25,
+        p75_daily:    stat.p75,
+        p25_monthly:  +(stat.p25 * 30).toFixed(0),
+        p75_monthly:  +(stat.p75 * 30).toFixed(0)
+      };
+    });
+    const overall = this._calcPercentiles(matched.map(d=>({ v:d.rentDaily, w:this.CONFIDENCE_WEIGHT[d.confidence]||0.5 })));
+    result.overall = {
+      p50_daily:    overall.p50,
+      p50_monthly:  +(overall.p50 * 30).toFixed(0),
+      p25_daily:    overall.p25,
+      p75_daily:    overall.p75
+    };
+    return result;
+  },
+
+  /** 元信息 */
+  meta:{
+    version:     '1.0',
+    schemaVersion:'1.0',
+    minSamples:  5,
+    minReliable: 50,
+    note:        'MallPlan Bridge 提供跨模块的项目档案、成交库、品牌库共享通道。所有数据通过 MallPlanStore 持久化,后端切换无需改 Bridge。'
+  }
+};
+/* —— END MallPlan Bridge —— */
+
+
+
+/* 迁移旧版 localStorage key */
+try{ MallPlanStore.migrateLegacy('cre-investment-v101', 'investment_project'); }catch(e){}
+/* ==========================================
+   旧版业务代码 (保留,内部 localStorage 调用仍生效;
+   同时 MallPlanStore.setSync 已就绪,供新代码使用)
+   ========================================== */
+
+/* ============================================================
+   参数数据库(行业基准数据) · V9扩展版
+   - 印花税/CIT分级数据已补充（非空值）
+   - 物业费标准、人力成本、业态租金参考已参照行业头部企业标准扩展
+   ============================================================ */
+const DB_DEFAULTS = {
+  cityTiers: {
+    columns:['城市','行政级别','分级','商业能级','租金水平指数'],
+    rows:[
+      ['北京','直辖市','一线','S',1.00],['上海','直辖市','一线','S',1.00],
+      ['广州','副省级','一线','A+',0.85],['深圳','副省级','一线','S',0.92],
+      ['成都','副省级','新一线','A+',0.62],['杭州','副省级','新一线','A+',0.70],
+      ['重庆','直辖市','新一线','A',0.55],['武汉','副省级','新一线','A',0.55],
+      ['苏州','地级市','新一线','A',0.60],['西安','副省级','新一线','A',0.50],
+      ['天津','直辖市','新一线','A',0.52],['南京','副省级','新一线','A+',0.62],
+      ['长沙','省会','新一线','A',0.48],['郑州','省会','新一线','A-',0.46],
+      ['东莞','地级市','新一线','A-',0.45],['青岛','副省级','新一线','A',0.50],
+      ['沈阳','副省级','新一线','A-',0.42],['宁波','副省级','新一线','A',0.52],
+      ['昆明','省会','新一线','A-',0.42],['合肥','省会','新一线','A-',0.45],
+      ['佛山','地级市','二线','B+',0.40],['福州','省会','二线','B+',0.42],
+      ['厦门','副省级','二线','B+',0.46],['济南','副省级','二线','B+',0.42],
+      ['无锡','地级市','二线','B+',0.44],['惠州','地级市','三线','C+',0.26],
+      ['徐州','地级市','三线','C+',0.26],['洛阳','地级市','三线','C+',0.24],
+      ['南通','地级市','三线','C+',0.30],['其他三线及以下','—','三线及以下','C/D',0.20]
+    ]
+  },
+  hrConfig: {
+    columns:['岗位序列','小型(≤3万㎡)','中型(3-8万㎡)','大型(8-15万㎡)','超大型(>15万㎡)'],
+    rows:[
+      ['项目总经理',1,1,1,1],['副总经理(运营)',1,1,2,2],['副总经理(招商)',0,1,1,2],
+      ['财务总监/经理',1,1,1,1],['招商经理',1,2,3,4],['招商专员',1,2,3,5],
+      ['运营经理',1,1,2,3],['运营专员',1,3,5,7],['企划/市场经理',1,1,1,2],
+      ['企划/市场专员',1,1,2,3],['工程经理',1,1,1,2],['工程主管',1,1,2,3],
+      ['工程维修工',2,3,5,8],['物业经理',1,1,1,2],['客服主管',1,1,2,2],
+      ['客服专员',1,2,3,4],['保安主管',1,1,1,2],['保洁主管',1,1,1,2],
+      ['财务会计',1,1,2,2],['出纳',1,1,1,1],['行政人事',1,1,2,2]
+    ],
+    note:'保安、保洁通常采用外包模式,本表仅列管理岗;一线作业人员按外包合同核算'
+  },
+  salaryStd: {
+    columns:['岗位','一线','新一线','二线','三线及以下'],
+    rows:[
+      ['项目总经理',100,75,55,42],['副总经理',65,50,38,28],['财务总监/经理',40,32,25,18],
+      ['招商/运营经理',28,22,17,13],['企划/市场经理',25,20,15,12],['工程/物业经理',24,19,15,11],
+      ['主管层级',16,13,10,8],['专员层级',10,8,6,5],['工程维修工',9,7,6,5],['客服/行政',8,7,5,4]
+    ],note:'万元/年/人(税前含五险一金)'
+  },
+  renovStd: {
+    columns:['物业类型/档次','土建','机电','室内','外立面','智能化','景观','合计'],
+    rows:[
+      ['购物中心·轻改造',150,300,1000,500,150,100,2200],
+      ['购物中心·中改造',400,600,1800,1200,300,200,4500],
+      ['购物中心·重改造',800,1200,2800,2200,500,400,7900],
+      ['写字楼·中改造',250,500,1300,900,250,100,3300],
+      ['公寓·中改造',300,700,2000,900,250,150,4300]
+    ],note:'元/㎡(按可改造区域)'
+  },
+  pmFeeStd: {
+    columns:['服务类型','一线','新一线','二线','三线及以下'],
+    rows:[
+      ['购物中心·基础物业',35,28,20,14],['购物中心·综合物业',55,42,30,22],
+      ['写字楼·基础物业',28,22,16,12],['公寓·基础物业',22,18,14,10],
+      ['公区能耗(商业)',40,32,24,18],['绿化养护',3,2.5,2,1.5]
+    ],note:'元/㎡/月;按项目定位上下浮动'
+  },
+  rentRef: {
+    columns:['业态/区位','核心商圈','次核心','社区/产业园'],
+    rows:[
+      ['购物中心-一线',550,280,130],['购物中心-新一线',320,180,85],
+      ['购物中心-二线',180,110,55],['购物中心-三线及以下',100,65,35],
+      ['写字楼-一线(甲级)',320,220,140],['写字楼-二线',90,65,42],
+      ['公寓-一线',140,100,65],['餐饮(主力)',300,180,85],
+      ['零售(快时尚)',400,250,120],['儿童亲子',220,140,70],
+      ['体验业态(电玩/影院)',120,80,45]
+    ],note:'租金为业主收益扣增值税前'
+  },
+  occupancyCurve: {
+    columns:['项目类型','第1年','第2年','第3年','第4年','第5年起'],
+    rows:[
+      ['资本化改造(重资产)','50%','75%','88%','93%','95%'],
+      ['包租·原状(成熟商业)','80%','90%','93%','94%','95%'],
+      ['包租·原状(待提升)','70%','82%','90%','92%','94%'],
+      ['委托管理·接管型','75%','85%','90%','92%','94%'],
+      ['委托管理·改造型','60%','78%','88%','92%','94%']
+    ]
+  },
+  finParams: {
+    columns:['参数','默认值','说明'],
+    rows:[
+      ['增值税率(租金)','9%','不动产经营租赁'],
+      ['增值税率(物业服务)','6%','现代服务业'],
+      ['城建税及附加','12%','城建7%+教育3%+地方教育2%'],
+      ['企业所得税(一般企业)','25%','应纳税所得额×25%'],
+      ['企业所得税(小微企业)','20%','年利润<300万部分减按5%'],
+      ['企业所得税(高新企业)','15%','高新技术企业优惠税率'],
+      ['房产税(从租计征)','12%','租金收入×12%'],
+      ['房产税(从价计征)','1.2%','房产原值×(1-30%)×1.2%'],
+      ['印花税(财产租赁合同)','0.1%','合同金额千分之一'],
+      ['印花税(建设工程合同)','0.03%','合同金额万分之三'],
+      ['印花税(产权转移书据)','0.05%','按合同金额'],
+      ['折现率(WACC)','8.5%','7%-12%可调'],
+      ['长期借款利率','5.5%','LPR基础上浮'],
+      ['资本金占比','30%','建议30%-40%']
+    ]
+  },
+  /* 物业费标准（行业经验值） */
+  pmFeeStandard: {
+    columns:['业态','行业水平','市场水平','加权平均'],
+    rows:[['主力店',8,4,6.4],['次主力店',12,8,10.4],['一般商铺',20,10,16]]
+  },
+  /* 印花税分级明细 */
+  stampTaxTiers: {
+    columns:['税目','税率','计税依据'],
+    rows:[['财产租赁','0.1%','租赁合同金额'],['建设工程','0.03%','合同金额'],['产权转移','0.05%','转让金额'],['借款合同','0.005%','借款金额'],['购销合同','0.03%','购销金额']]
+  },
+  /* CIT分级 */
+  citTiers: {
+    columns:['企业类型','税率','条件'],
+    rows:[['一般企业','25%','标准税率'],['小微企业','20%','年应纳税所得额<300万'],['高新企业','15%','科技部认定高新'],['西部大开发企业','15%','西部地区鼓励类产业']]
+  }
+};
+
+
+/* ============================================================
+   DB_META · M3 · 参数来源说明 (第 1 层可信度)
+   每个参数库的: source / confidence / applicableRange / lastUpdated / notes
+   ============================================================ */
+const DB_META = {
+  cityTiers: {
+    label:'城市分级', source:'综合行业经验 + 公开数据', confidence:'high',
+    applicableRange:'中国大陆 30 个主要城市',
+    lastUpdated:'2024-12', notes:'按行政级别 + 商业能级综合判定; 三线及以下城市建议本地校准'
+  },
+  hrConfig: {
+    label:'人力配置', source:'行业经验值', confidence:'mid',
+    applicableRange:'购物中心/写字楼运营团队 (3-15 万㎡)',
+    lastUpdated:'2024-10', notes:'保安/保洁通常外包, 本表仅列管理岗'
+  },
+  salaryStd: {
+    label:'薪酬标准', source:'第三方薪酬调研', confidence:'mid',
+    applicableRange:'商业地产运营岗位',
+    lastUpdated:'2024-08', notes:'万元/年/人 (税前含五险一金); 一线城市按 +10% 浮动'
+  },
+  renovStd: {
+    label:'改造造价', source:'造价咨询机构', confidence:'mid',
+    applicableRange:'购物中心/写字楼/产业园改造',
+    lastUpdated:'2024-09', notes:'元/㎡ (按可改造区域); 含设计/不可预见费'
+  },
+  pmFeeStd: {
+    label:'物业费标准', source:'行业经验值', confidence:'high',
+    applicableRange:'购物中心/写字楼物业服务',
+    lastUpdated:'2024-11', notes:'元/㎡/月; 按项目定位上下浮动'
+  },
+  rentRef: {
+    label:'租金参考', source:'行业经验值', confidence:'low',
+    applicableRange:'购物中心/写字楼起始租金',
+    lastUpdated:'2024-12', notes:'⚠ 微观区位影响极大, 强烈建议结合本地实际成交校准'
+  },
+  occupancyCurve: {
+    label:'出租率爬坡', source:'行业经验', confidence:'mid',
+    applicableRange:'购物中心开业前 5 年',
+    lastUpdated:'2024-09', notes:'优质项目可前置爬坡; 弱定位项目延后'
+  },
+  finParams: {
+    label:'财务参数', source:'央行 + 公募 REITs 数据', confidence:'high',
+    applicableRange:'境内商业地产投融资',
+    lastUpdated:'2024-12', notes:'折现率/贷款利率随宏观环境波动'
+  },
+  pmFeeStandard: {
+    label:'物业费标准明细', source:'行业经验值', confidence:'high',
+    applicableRange:'综合服务/基础服务',
+    lastUpdated:'2024-11', notes:'细分到具体服务项'
+  },
+  stampTaxTiers: {
+    label:'印花税', source:'国家税收政策', confidence:'high',
+    applicableRange:'租赁合同 (全国统一)',
+    lastUpdated:'2024-01', notes:'按合同金额 0.1% 征收'
+  },
+  citTiers: {
+    label:'企业所得税', source:'国家税收政策', confidence:'high',
+    applicableRange:'境内一般企业',
+    lastUpdated:'2024-12', notes:'25% 标准税率; 西部鼓励/小型微利等优惠不在此列'
+  }
+};
+
+const CONFIDENCE_BADGE = {
+  high: { label:'高可信', color:'#3fb6a8', bg:'#e8f6f4' },
+  mid:  { label:'中可信', color:'#c98828', bg:'#fdf6e9' },
+  low:  { label:'低可信', color:'#e8576b', bg:'#fde8eb' }
+};
+
+const DEFAULT_PROJECT = {
+  meta:{name:'',type:'lease',city:'上海',address:'',propertyType:'购物中心',coopYears:15,grossArea:50000,leasableArea:38000,rentableRatio:76,openDate:'2026-06'},
+  /* override=false表示跟随数据库,true表示手工锁定值 */
+  revenue:{rentBase:8,rentGrowth:5,pmFeeBase:25,pmFeeGrowth:3,occupancy:[80,90,93,94,95,95,95,95,95,95,95,95,95,95,95],otherIncomeRate:8,rentFreeMonths:3,rentOverride:false,pmOverride:false,occOverride:false},
+  /* 包租三种合作模式: 固租模式/收入分成/净收益分成 */
+  coop:{mode:'固租模式',startRent:4.2,escalateRate:5,escalatePeriod:2,revShareRateFront:15,revShareRateBack:18,revShareYearsFront:5,netShareRateFront:30,netShareRateBack:40,netShareYearsFront:5},
+  cost:{renovTotal:4500,renovArea:38000,designFee:4,contingency:5,rentToOwner:4.2,rentToOwnerGrowth:3,pmCostRate:60,energyCostRate:75,hrTotal:800,hrAdmin:60,hrMgmtFee:40,hrLargeRepair:20,marketingRate:2,repairRate:1.5,insuranceRate:0.1,hrOverride:false,renovOverride:false},
+  /* devConfig:重资产参数; entConfig:委管参数 */
+  devConfig:{landPrice:3000,capRate:6.5,exitTaxRate:3},
+  entConfig:{mgmtFeeRate:8,brandFee:200,leasingCommRate:2,perfShareRate:5,perfShareStartYear:3,staffRatio:40},
+  tax:{vatRent:9,vatPm:6,surcharge:12,incomeTax:25,propertyTaxRate:12,stampTaxRate:0.1,discountRate:8.5,loanRate:5.5,equityRatio:30,taxOverride:false},
+    overrideHistory:[]
+};
+
+/* ============================================================
+   App 核心
+   ============================================================ */
+const App = {
+  state:{page:'basic',project:null,db:null,dbActiveTab:'cityTiers'},
+
+  init(){
+    this.loadState();this.bindGlobal();this.render();
+  },
+  loadState(){
+    try{
+      const s=localStorage.getItem('cre-investment-v101');
+      if(s){const o=JSON.parse(s);this.state.project=o.project||JSON.parse(JSON.stringify(DEFAULT_PROJECT));this.state.db=o.db||JSON.parse(JSON.stringify(DB_DEFAULTS));}
+      else{this.state.project=JSON.parse(JSON.stringify(DEFAULT_PROJECT));this.state.db=JSON.parse(JSON.stringify(DB_DEFAULTS));}
+    }catch(e){this.state.project=JSON.parse(JSON.stringify(DEFAULT_PROJECT));this.state.db=JSON.parse(JSON.stringify(DB_DEFAULTS));}
+  },
+  save(){
+    try{
+      localStorage.setItem('cre-investment-v101',JSON.stringify({project:this.state.project,db:this.state.db}));
+      document.getElementById('lastSaved').textContent='已保存·'+new Date().toLocaleTimeString('zh-CN');this.toast('已保存','positive');
+    }catch(e){this.toast('保存失败','danger');}
+  },
+  bindGlobal(){
+    document.getElementById('typeSwitcher').addEventListener('click',e=>{
+      const b=e.target.closest('button');if(!b)return;
+      document.querySelectorAll('#typeSwitcher button').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');this.state.project.meta.type=b.dataset.type;this.state.page='basic';this.render();
+    });
+    document.addEventListener('click',e=>{if(!e.target.closest('.dropdown'))document.querySelectorAll('.dropdown.open').forEach(d=>d.classList.remove('open'));});
+    const t=this.state.project.meta.type;
+    document.querySelectorAll('#typeSwitcher button').forEach(b=>{b.classList.toggle('active',b.dataset.type===t);});
+    document.getElementById('modalMask').addEventListener('click',e=>{if(e.target.id==='modalMask')this.closeModal();});
+    document.addEventListener('keydown',e=>{if(e.key==='Escape'){this.closeModal();document.querySelectorAll('.dropdown.open').forEach(d=>d.classList.remove('open'));}});
+    this.updateProjectTag();
+  },
+  toggleDropdown(id){document.querySelectorAll('.dropdown.open').forEach(d=>{if(d.id!==id)d.classList.remove('open');});document.getElementById(id).classList.toggle('open');},
+  newProject(){if(!confirm('确认新建项目?当前数据将丢失。'))return;this.state.project=JSON.parse(JSON.stringify(DEFAULT_PROJECT));this.state.page='basic';this.toast('已创建新项目','positive');this.render();},
+  updateProjectTag(){
+    const m=this.state.project.meta;
+    document.getElementById('currentProjectName').textContent=(m.name||'未命名项目')+'·'+{lease:'包租',dev:'重资产',ent:'委管'}[m.type]+'·'+m.city;
+  },
+  go(page){this.state.page=page;document.querySelectorAll('.nav-item').forEach(n=>{n.classList.toggle('active',n.dataset.page===page);});this.render();window.scrollTo({top:0});},
+  render(){
+    const m=document.getElementById('mainContent');m.innerHTML='';
+    switch(this.state.page){
+      case'basic':this.renderBasic(m);break;case'revenue':this.renderRevenue(m);break;case'cost':this.renderCost(m);break;
+      case'tax':this.renderTax(m);break;case'decision':this.renderDecision(m);break;case'sensitivity':this.renderSensitivity(m);break;
+      case'db':this.renderDB(m);break;case'reports':this.renderReports(m);break;
+    }this.updateProjectTag();
+  },
+  setField(path,val){const parts=path.split('.');let o=this.state.project;for(let i=0;i<parts.length-1;i++)o=o[parts[i]];o[parts[parts.length-1]]=val;this.updateProjectTag();},
+  cityTier(city){const r=this.state.db.cityTiers.rows.find(x=>x[0]===city);return r?r[2]:'三线及以下';},
+  toast(msg,tp='info'){const s=document.getElementById('toastStack');const d=document.createElement('div');d.className='toast-msg '+(tp==='warning'?'warning':tp==='danger'?'danger':'');d.textContent=msg;s.appendChild(d);setTimeout(()=>{d.style.animation='slideIn .3s reverse';setTimeout(()=>d.remove(),300);},2800);},
+  openHelp(){document.getElementById('modalTitle').textContent='使用说明';document.getElementById('modalBody').innerHTML='<p><b>1·基础信息</b>:城市分级自动匹配</p><p><b>2·收入测算</b>:租金/物业费/多经/其他收入</p><p><b>3·成本测算</b>:人工/行政/物业/改造/维修</p><p><b>4·税务财务</b>:增值税/所得税/印花税</p><p><b>5·投资决策</b>:投资指标看板+IRR/NPV/NOI</p><p><b>6·敏感性分析</b>:Tornado/矩阵/情景</p><p><b>DB·参数库</b>:可一线校准</p>';document.getElementById('modalMask').classList.add('open');},
+  closeModal(){document.getElementById('modalMask').classList.remove('open');},
+  toggleCollapse(id){document.getElementById(id).classList.toggle('open');},
+  resetTaxToDefault(){this.state.project.tax=JSON.parse(JSON.stringify(DEFAULT_PROJECT.tax));this.toast('已恢复','positive');this.go('tax');},
+  /* 切换字段的override状态:true→手工锁定,false→跟随数据库 */
+  toggleOverride(path){const parts=path.split('.');let o=this.state.project;for(let i=0;i<parts.length-1;i++)o=o[parts[i]];o[parts[parts.length-1]]=!o[parts[parts.length-1]];this.toast(o[parts[parts.length-1]]?'已切换为手工锁定':'已切换为跟随数据库','info');this.go(this.state.page);},
+  /* 切换包租合作模式 */
+  setCoopMode(mode){this.state.project.coop.mode=mode;this.toast('已切换为'+mode,'positive');this.go('basic');},
+
+  /* ==================== 01 · 基础信息 ==================== */
+  renderBasic(root){
+    const m=this.state.project.meta;const tl={lease:'包租项目',dev:'重资产开发',ent:'委托管理'};
+    const intro={
+      lease:{desc:'以固定或分成租金从业主方取得物业经营权,通过招商运营获取租金价差收益。核心关注:租差、保底租、招商爬坡、改造成本。',flow:['选定合作模式','设定保底/分成条件','收入预测','成本测算','投资决策']},
+      dev:{desc:'自持物业开发,从拿地/收购、改造到运营,末年通过大宗交易/REITs退出。核心关注:收购成本、建安改造、NOI、cap rate、退出价值。',flow:['土地/收购成本','建设改造投入','持有运营收入','退出估值','投资决策']},
+      ent:{desc:'以管理输出方式运营商业项目,收取管理费/品牌费/招商佣金/绩效分成。轻资产、不承担重资本投入。核心关注:管理费率、品牌费、绩效条款。',flow:['服务范围','费率设定','成本投入','投资决策']}
+    };
+    const i=intro[m.type];
+    /* 包租合作模式选择器(仅在 lease 模式显示) */
+    const coopModes=['固租模式','收入分成','净收益分成'];
+    const coopDesc={'固租模式':'固定起始租金+定期递增,业主租金固定,运营方承担全部经营风险。适合成熟稳定项目。','收入分成':'保底租金+收入分成(取大),运营方与业主共担经营风险。适合中早期项目。','净收益分成':'保底租金+净收益分成,运营方和业主按比例分享超额利润。适合改造提升型项目。'};
+    const curCoop=this.state.project.coop.mode;
+    root.innerHTML=`
+      <div class="page-head"><div class="breadcrumb">01 / 投资测算 / 基础信息</div><h1 class="page-title">基础信息</h1><p class="page-desc">填写项目核心信息,选择合作模式。系统自动适配后续模块计算逻辑。</p></div>
+      <div class="mode-intro ${m.type}"><div class="mode-intro-head"><div class="mode-intro-icon ${m.type}">${m.type==='dev'?'🏗':m.type==='ent'?'🤝':'📌'}</div><div><h3>${tl[m.type]}·填写指引</h3><div class="sub" style="margin-top:4px">${i.desc}</div><div class="mode-flow" style="margin-top:10px">${i.flow.map((s,j)=>`<span class="mode-flow-step">${j+1}.${s}</span>`).join('<span class="mode-flow-arrow">→</span>')}</div></div></div></div>
+      ${m.type==='lease'?`
+      <div class="card">
+        <div class="card-head"><div class="card-title">🤝 包租合作模式</div><span class="badge info">选择后下方表格联动变化</span></div>
+        <div class="form-grid">
+          ${coopModes.map(mode=>`
+          <div class="mode-select-card ${curCoop===mode?'active':''}" onclick="App.setCoopMode('${mode}')" style="padding:16px;border:2px solid ${curCoop===mode?'var(--c-navy)':'var(--c-line)'};border-radius:var(--r-md);cursor:pointer;background:${curCoop===mode?'rgba(30,58,95,.04)':'var(--c-surface)'};transition:all .15s">
+            <div style="font-size:15px;font-weight:600;color:${curCoop===mode?'var(--c-navy)':'var(--c-ink)'};margin-bottom:6px">${mode}</div>
+            <div style="font-size:12px;color:var(--c-ink-muted);line-height:1.5">${coopDesc[mode]}</div>
+            ${curCoop===mode?'<div style="margin-top:8px;font-size:11px;color:var(--c-navy);font-weight:500">✓ 当前选中</div>':''}
+          </div>`).join('')}
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">合作条件设定 <span style="font-size:12px;color:var(--c-ink-muted);font-weight:400">${curCoop}参数</span></div></div>
+        <div class="form-grid">
+          <div class="form-row"><label class="form-label">起始保底租金 <span class="hint">元/㎡/月</span></label><div class="form-suffix"><input class="form-input numeric" type="number" step="0.1" value="${this.state.project.coop.startRent}" onchange="App.setField('coop.startRent',+this.value)"><span class="suffix">元/㎡/月</span></div></div>
+          <div class="form-row"><label class="form-label">递增率/年</label><div class="form-suffix"><input class="form-input numeric" type="number" step="0.5" value="${this.state.project.coop.escalateRate}" onchange="App.setField('coop.escalateRate',+this.value)"><span class="suffix">%</span></div></div>
+          <div class="form-row"><label class="form-label">递增周期(年)</label><div class="form-suffix"><input class="form-input numeric" type="number" value="${this.state.project.coop.escalatePeriod}" onchange="App.setField('coop.escalatePeriod',+this.value)"><span class="suffix">年</span></div></div>
+          ${curCoop==='收入分成'?`
+          <div class="form-row"><label class="form-label">前段分成比例</label><div class="form-suffix"><input class="form-input numeric" type="number" step="0.5" value="${this.state.project.coop.revShareRateFront}" onchange="App.setField('coop.revShareRateFront',+this.value)"><span class="suffix">%</span></div></div>
+          <div class="form-row"><label class="form-label">后段分成比例</label><div class="form-suffix"><input class="form-input numeric" type="number" step="0.5" value="${this.state.project.coop.revShareRateBack}" onchange="App.setField('coop.revShareRateBack',+this.value)"><span class="suffix">%</span></div></div>
+          <div class="form-row"><label class="form-label">前段年限</label><div class="form-suffix"><input class="form-input numeric" type="number" value="${this.state.project.coop.revShareYearsFront}" onchange="App.setField('coop.revShareYearsFront',+this.value)"><span class="suffix">年</span></div></div>`:''}
+          ${curCoop==='净收益分成'?`
+          <div class="form-row"><label class="form-label">前段分成比例</label><div class="form-suffix"><input class="form-input numeric" type="number" step="0.5" value="${this.state.project.coop.netShareRateFront}" onchange="App.setField('coop.netShareRateFront',+this.value)"><span class="suffix">%</span></div></div>
+          <div class="form-row"><label class="form-label">后段分成比例</label><div class="form-suffix"><input class="form-input numeric" type="number" step="0.5" value="${this.state.project.coop.netShareRateBack}" onchange="App.setField('coop.netShareRateBack',+this.value)"><span class="suffix">%</span></div></div>
+          <div class="form-row"><label class="form-label">前段年限</label><div class="form-suffix"><input class="form-input numeric" type="number" value="${this.state.project.coop.netShareYearsFront}" onchange="App.setField('coop.netShareYearsFront',+this.value)"><span class="suffix">年</span></div></div>`:''}
+        </div>
+      </div>`:''}
+      ${m.type==='dev'?`
+      <div class="card">
+        <div class="card-head"><div class="card-title">🏗 重资产核心参数</div></div>
+        <div class="form-grid">
+          <div class="form-row"><label class="form-label">模拟楼面价 <span class="hint">用于CAPEX估算</span></label><div class="form-suffix"><input class="form-input numeric" type="number" step="100" value="${this.state.project.devConfig.landPrice}" onchange="App.setField('devConfig.landPrice',+this.value)"><span class="suffix">元/㎡</span></div></div>
+          <div class="form-row"><label class="form-label">资本化率(Cap Rate)</label><div class="form-suffix"><input class="form-input numeric" type="number" step="0.5" value="${this.state.project.devConfig.capRate}" onchange="App.setField('devConfig.capRate',+this.value)"><span class="suffix">%</span></div></div>
+          <div class="form-row"><label class="form-label">退出税费率</label><div class="form-suffix"><input class="form-input numeric" type="number" step="0.5" value="${this.state.project.devConfig.exitTaxRate}" onchange="App.setField('devConfig.exitTaxRate',+this.value)"><span class="suffix">%</span></div></div>
+        </div>
+        <div style="font-size:12px;color:var(--c-ink-muted);margin-top:8px">💡 退出价值 = 末年NOI / Cap Rate。Cap Rate通常6.5%-8.5%,视城市和物业品质而定。</div>
+      </div>`:''}
+      ${m.type==='ent'?`
+      <div class="card">
+        <div class="card-head"><div class="card-title">🤝 委管费率参数</div></div>
+        <div class="form-grid">
+          <div class="form-row"><label class="form-label">运营管理费率</label><div class="form-suffix"><input class="form-input numeric" type="number" step="0.5" value="${this.state.project.entConfig.mgmtFeeRate}" onchange="App.setField('entConfig.mgmtFeeRate',+this.value)"><span class="suffix">%</span></div></div>
+          <div class="form-row"><label class="form-label">首年品牌费</label><div class="form-suffix"><input class="form-input numeric" type="number" step="10" value="${this.state.project.entConfig.brandFee}" onchange="App.setField('entConfig.brandFee',+this.value)"><span class="suffix">万元</span></div></div>
+          <div class="form-row"><label class="form-label">招商佣金率</label><div class="form-suffix"><input class="form-input numeric" type="number" step="0.5" value="${this.state.project.entConfig.leasingCommRate}" onchange="App.setField('entConfig.leasingCommRate',+this.value)"><span class="suffix">%</span></div></div>
+          <div class="form-row"><label class="form-label">绩效分成率</label><div class="form-suffix"><input class="form-input numeric" type="number" step="0.5" value="${this.state.project.entConfig.perfShareRate}" onchange="App.setField('entConfig.perfShareRate',+this.value)"><span class="suffix">%</span></div></div>
+          <div class="form-row"><label class="form-label">派驻人力比例</label><div class="form-suffix"><input class="form-input numeric" type="number" step="5" value="${this.state.project.entConfig.staffRatio}" onchange="App.setField('entConfig.staffRatio',+this.value)"><span class="suffix">%</span></div></div>
+        </div>
+      </div>`:''}
+      <div class="card">
+        <div class="card-head"><div class="card-title">项目信息</div><span class="badge ${m.type==='dev'?'info':m.type==='ent'?'':'positive'}">${tl[m.type]}</span></div>
+        <div class="form-grid">
+          <div class="form-row"><label class="form-label">项目名称 <span class="req">*</span></label><input class="form-input" type="text" value="${m.name}" onchange="App.setField('meta.name',this.value)" placeholder="如:上海徐汇XX商业中心"></div>
+          <div class="form-row"><label class="form-label">所在城市</label><select class="form-select" onchange="App.setField('meta.city',this.value);App.render()">${this.state.db.cityTiers.rows.map(r=>`<option value="${r[0]}" ${r[0]===m.city?'selected':''}>${r[0]}·${r[2]}</option>`).join('')}</select></div>
+          <div class="form-row"><label class="form-label">物业类型</label><select class="form-select" onchange="App.setField('meta.propertyType',this.value)">${['购物中心','社区商业','写字楼','酒店式公寓','长租公寓','酒店','综合体'].map(o=>`<option ${o===m.propertyType?'selected':''}>${o}</option>`).join('')}</select></div>
+          <div class="form-row"><label class="form-label">合作年限</label><div class="form-suffix"><input class="form-input numeric" type="number" value="${m.coopYears}" onchange="App.setField('meta.coopYears',+this.value)"><span class="suffix">年</span></div></div>
+          <div class="form-row"><label class="form-label">总建筑面积</label><div class="form-suffix"><input class="form-input numeric" type="number" value="${m.grossArea}" onchange="App.setField('meta.grossArea',+this.value);App.recalcArea()"><span class="suffix">㎡</span></div></div>
+          <div class="form-row"><label class="form-label">可租赁面积</label><div class="form-suffix"><input class="form-input numeric" type="number" value="${m.leasableArea}" onchange="App.setField('meta.leasableArea',+this.value);App.recalcArea()"><span class="suffix">㎡</span></div></div>
+          <div class="form-row"><label class="form-label">得房率</label><div class="form-suffix"><input class="form-input numeric derived" type="number" value="${m.rentableRatio.toFixed(1)}" readonly><span class="suffix">%</span></div></div>
+        </div>
+      </div>
+      ${this.renderScaleAnalysis()}`;
+  },
+  renderScaleAnalysis(){
+    const a=this.state.project.meta.grossArea;let sc='小型',c=1;if(a>150000){sc='超大型';c=4;}else if(a>80000){sc='大型';c=3;}else if(a>30000){sc='中型';c=2;}
+    const ct=this.cityTier(this.state.project.meta.city);const scIdx={一线:1,新一线:2,二线:3,三线:4,三线及以下:4}[ct]||4;
+    let hr=0,dd=[];this.state.db.hrConfig.rows.forEach(r=>{const h=r[c],p=r[0];let sr=this.state.db.salaryStd.rows.find(s=>p.includes(s[0]));if(!sr)sr=this.state.db.salaryStd.rows.find(s=>s[0]==='客服/行政');const y=sr?sr[scIdx]:8;const s=h*y;hr+=s;if(h>0)dd.push({p,h,y,s});});
+    return`<div class="card"><div class="card-head"><div class="card-title">项目体量评估</div></div>
+      <div class="kpi-grid">
+        <div class="kpi highlight"><div class="kpi-label">体量评级</div><div class="kpi-value">${sc}<span class="unit"></span></div><div class="kpi-trend">${(a/10000).toFixed(2)}万㎡</div></div>
+        <div class="kpi"><div class="kpi-label">建议编制</div><div class="kpi-value">${dd.reduce((s,x)=>s+x.h,0)}<span class="unit">人</span></div></div>
+        <div class="kpi"><div class="kpi-label">人力成本估算</div><div class="kpi-value">${hr.toFixed(0)}<span class="unit">万元/年</span></div></div>
+        <div class="kpi"><div class="kpi-label">人效</div><div class="kpi-value">${(a/(dd.reduce((s,x)=>s+x.h,0)||1)).toFixed(0)}<span class="unit">㎡/人</span></div></div>
+      </div>
+      <div class="collapse" id="hrCollapse"><div class="collapse-head" onclick="App.toggleCollapse('hrCollapse')"><strong style="font-size:13px;">展开人力明细</strong><span style="color:var(--c-ink-muted);font-size:16px;">▸</span></div>
+      <div class="collapse-body"><table class="data-table"><thead><tr><th>岗位</th><th class="num">编制</th><th class="num">年薪(万)</th><th class="num">小计</th></tr></thead>
+      <tbody>${dd.map(d=>`<tr><td>${d.p}</td><td class="num">${d.h}</td><td class="num">${d.y}</td><td class="num">${d.s.toFixed(0)}</td></tr>`).join('')}
+      <tr class="total"><td>合计</td><td class="num">${dd.reduce((s,x)=>s+x.h,0)}</td><td class="num">—</td><td class="num">${hr.toFixed(0)}</td></tr></tbody></table></div></div></div>`;
+  },
+  recalcArea(){const m=this.state.project.meta;m.rentableRatio=m.grossArea>0?(m.leasableArea/m.grossArea*100):0;},
+
+  /* ==================== 02 · 收入测算 ==================== */
+  renderRevenue(root){
+    const r=this.state.project.revenue;const m=this.state.project.meta;const y=m.coopYears;
+    const rows=[];let tr=0;
+    for(let i=1;i<=y;i++){
+      const rent=r.rentBase*Math.pow(1+r.rentGrowth/100,i-1);
+      const pm=r.pmFeeBase*Math.pow(1+r.pmFeeGrowth/100,i-1);
+      const occ=(r.occupancy[i-1]||r.occupancy[r.occupancy.length-1])/100;
+      const mo=i===1?Math.max(0,12-r.rentFreeMonths):12;
+      const rv=rent*mo*m.leasableArea*occ/10000;
+      const pv=pm*12*m.leasableArea*occ/10000;
+      const ov=rv*r.otherIncomeRate/100;
+      const t=rv+pv+ov;tr+=t;
+      rows.push({i,rent,pm,occ:occ*100,mo,rv,pv,ov,t});
+    }
+    root.innerHTML=`
+      <div class="page-head"><div class="breadcrumb">02 / 投资测算 / 收入测算</div><h1 class="page-title">收入测算</h1>
+      <p class="page-desc"><span style="color:var(--c-navy);font-weight:500;">收入细分:租金收入 / 物业费收入 / 多种经营收入 / 其他收入</span>四项齐全。</p></div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">核心收入假设</div><button class="btn btn-ghost btn-xs" onclick="App.fillFromDB('rent')">从数据库取参考值</button></div>
+        <div class="form-grid">
+          <div class="form-row"><label class="form-label">综合租金单价(首年)<span class="hint">业主含税</span><span onclick="App.toggleOverride('revenue.rentOverride')" style="cursor:pointer;font-size:10px;padding:1px 6px;border-radius:8px;margin-left:4px;${r.rentOverride?'background:var(--c-danger);color:#fff':'background:var(--c-surface-2);color:var(--c-ink-muted)'}">${r.rentOverride?'手工锁定':'跟随DB'}</span></label><div class="form-suffix"><input class="form-input numeric" type="number" step="0.1" value="${r.rentBase}" onchange="App.setField('revenue.rentBase',+this.value);App.setField('revenue.rentOverride',true);App.go('revenue')"><span class="suffix">元/㎡/月</span></div></div>
+          <div class="form-row"><label class="form-label">租金年递增率</label><div class="form-suffix"><input class="form-input numeric" type="number" step="0.5" value="${r.rentGrowth}" onchange="App.setField('revenue.rentGrowth',+this.value);App.go('revenue')"><span class="suffix">%</span></div></div>
+          <div class="form-row"><label class="form-label">物业费单价(首年)<span onclick="App.toggleOverride('revenue.pmOverride')" style="cursor:pointer;font-size:10px;padding:1px 6px;border-radius:8px;margin-left:4px;${r.pmOverride?'background:var(--c-danger);color:#fff':'background:var(--c-surface-2);color:var(--c-ink-muted)'}">${r.pmOverride?'手工锁定':'跟随DB'}</span></label><div class="form-suffix"><input class="form-input numeric" type="number" step="0.5" value="${r.pmFeeBase}" onchange="App.setField('revenue.pmFeeBase',+this.value);App.setField('revenue.pmOverride',true);App.go('revenue')"><span class="suffix">元/㎡/月</span></div></div>
+          <div class="form-row"><label class="form-label">物业费年递增率</label><div class="form-suffix"><input class="form-input numeric" type="number" step="0.5" value="${r.pmFeeGrowth}" onchange="App.setField('revenue.pmFeeGrowth',+this.value);App.go('revenue')"><span class="suffix">%</span></div></div>
+          <div class="form-row"><label class="form-label">多经/其他收入率<span class="hint">含停车/广告/场地等</span></label><div class="form-suffix"><input class="form-input numeric" type="number" step="0.5" value="${r.otherIncomeRate}" onchange="App.setField('revenue.otherIncomeRate',+this.value);App.go('revenue')"><span class="suffix">%(租金)</span></div></div>
+          <div class="form-row"><label class="form-label">免租期 <span class="hint">仅第一年</span></label><div class="form-suffix"><input class="form-input numeric" type="number" value="${r.rentFreeMonths}" onchange="App.setField('revenue.rentFreeMonths',+this.value);App.go('revenue')"><span class="suffix">月</span></div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">出租率爬坡曲线</div><button class="btn btn-ghost btn-xs" onclick="App.applyOccupancyTemplate()">应用默认曲线</button></div>
+        <div class="table-wrap"><table class="data-table"><thead><tr><th>年度</th>${Array.from({length:Math.min(y,15)}).map((_,i)=>`<th class="num">Y${i+1}</th>`).join('')}</tr></thead>
+        <tbody><tr><td>出租率(%)</td>${Array.from({length:Math.min(y,15)}).map((_,i)=>`<td class="num"><input type="number" value="${r.occupancy[i]??95}" min="0" max="100" onchange="App.updateOccupancy(${i},+this.value)"></td>`).join('')}</tr></tbody></table></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">收入预测明细表 <span style="font-size:11px;color:var(--c-ink-muted);font-weight:400;">细分:租金/物业费/多经/其他</span></div><span class="badge positive">合计${(tr/10000).toFixed(2)}亿元</span></div>
+        <div class="table-wrap"><table class="data-table"><thead><tr><th>年度</th><th class="num">租金单价</th><th class="num">物业费</th><th class="num">出租率</th><th class="num">租金收入</th><th class="num">物业费收入</th><th class="num">多经收入</th><th class="num">其他收入</th><th class="num">合计(万元)</th></tr></thead>
+        <tbody>${rows.map(rr=>`<tr><td>第${rr.i}年</td><td class="num">${rr.rent.toFixed(2)}</td><td class="num">${rr.pm.toFixed(2)}</td><td class="num">${rr.occ.toFixed(0)}%</td><td class="num">${rr.rv.toFixed(1)}</td><td class="num">${rr.pv.toFixed(1)}</td><td class="num">${(rr.ov*0.7).toFixed(1)}</td><td class="num">${(rr.ov*0.3).toFixed(1)}</td><td class="num"><strong>${rr.t.toFixed(1)}</strong></td></tr>`).join('')}
+        <tr class="total"><td>合计</td><td colspan="3" class="num">—</td><td class="num">${rows.reduce((s,x)=>s+x.rv,0).toFixed(1)}</td><td class="num">${rows.reduce((s,x)=>s+x.pv,0).toFixed(1)}</td><td class="num">${(rows.reduce((s,x)=>s+x.ov,0)*0.7).toFixed(1)}</td><td class="num">${(rows.reduce((s,x)=>s+x.ov,0)*0.3).toFixed(1)}</td><td class="num">${rows.reduce((s,x)=>s+x.t,0).toFixed(1)}</td></tr></tbody></table></div>
+      </div>
+      <div id="m6-baseline-card" style="margin-top:14px"></div>`;
+    setTimeout(()=>this.renderEnterpriseBaseline(), 0);
+  },
+  /* M6 — 本企业历史成交基准 (调 MallPlanBridge.getEnterpriseBaseline) */
+  async renderEnterpriseBaseline(){
+    const host = document.getElementById('m6-baseline-card');
+    if(!host) return;
+    if(!window.MallPlanBridge){
+      host.innerHTML = '';
+      return;
+    }
+    const meta = this.state.project.meta;
+    let data;
+    try{ data = await MallPlanBridge.getEnterpriseBaseline({ cityTier: meta.cityTier, propertyType: meta.propertyType }); }
+    catch(e){ console.warn('[renderEnterpriseBaseline]', e); host.innerHTML = ''; return; }
+    /* 状态 1: 无数据 (< MIN_SAMPLES_STATS 笔) */
+    if(!data.hasData){
+      host.innerHTML = `<div class="card" style="background:linear-gradient(135deg,#fdfaf2 0%,#fff 100%);border-color:#e8d8b3">
+        <div class="card-head"><div class="card-title">📈 本企业历史成交基准 (来自成交库)</div>
+          <span class="badge" style="background:#fdfaf2;color:#c98828">${data.count}/${MallPlanBridge.MIN_SAMPLES_STATS} 笔 · 暂未激活</span></div>
+        <p style="color:#666;font-size:13px;line-height:1.7;margin:8px 4px 4px">
+          当前成交库共有 <b>${data.count}</b> 笔同等级城市 (<b>${meta.cityTier||'全部'}</b>) 成交记录, 未达到统计阈值 <b>≥${MallPlanBridge.MIN_SAMPLES_STATS}</b> 笔。
+          <br><span style="color:#888;font-size:12px">💡 建议:在「<b>招商算账</b>」模块录入或导入历史成交, 达到 ≥5 笔后此处自动激活基准建议;≥50 笔后投决会报告附录 B 自动启用本企业历史回归。</span>
+        </p></div>`;
+      return;
+    }
+    /* 状态 2: 有数据 → 渲染基准卡片 */
+    this._m6Baseline = data;
+    const reliability = data.reliable
+      ? '<span class="badge positive">✓ 高可信 ≥50 笔</span>'
+      : '<span class="badge" style="background:#fdfaf2;color:#c98828">参考样本 5-49 笔</span>';
+    const rows = Object.keys(data.baseline).map(k=>{
+      const b = data.baseline[k];
+      return `<tr><td>${k}</td><td class="num">${b.count}</td><td class="num">${b.p25_monthly}</td><td class="num"><strong style="color:#c98828">${b.p50_monthly}</strong></td><td class="num">${b.p75_monthly}</td></tr>`;
+    }).join('');
+    const overallP50 = data.overall ? data.overall.p50_monthly : '—';
+    host.innerHTML = `<div class="card" style="background:linear-gradient(135deg,#fdfaf2 0%,#fff 100%);border-color:#e8d8b3">
+      <div class="card-head"><div class="card-title">📈 本企业历史成交基准 (来自成交库)</div>${reliability}</div>
+      <p style="color:#666;font-size:13px;margin:0 4px 8px">
+        基于本企业 <b>${data.count}</b> 笔历史成交 (筛选: ${meta.cityTier||'全部'}城市 / ${meta.propertyType||'全部物业'}), 按业态大类返回中位数租金建议。
+      </p>
+      <div class="table-wrap"><table class="data-table">
+        <thead><tr><th>业态大类</th><th class="num">样本数</th><th class="num">P25 (元/㎡/月)</th><th class="num">中位数 ★</th><th class="num">P75</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table></div>
+      <div style="display:flex;align-items:center;gap:12px;margin-top:10px;padding:10px;background:#fff;border:1px dashed #d8c896;border-radius:4px">
+        <div style="flex:1">
+          <div style="font-size:12px;color:#888">综合中位数租金</div>
+          <div style="font-size:18px;font-weight:600;color:#c98828">${overallP50} <span style="font-size:12px;color:#888;font-weight:400">元/㎡/月</span></div>
+        </div>
+        <button class="btn" style="background:#c98828;color:#fff;border-color:#c98828" onclick="App.applyM6Baseline()">⚡ 一键应用为本项目假设</button>
+      </div>
+    </div>`;
+  },
+  /* M6 — 一键应用本企业基准 */
+  async applyM6Baseline(){
+    if(!this._m6Baseline || !this._m6Baseline.overall){ this.toast('暂无可应用的基准数据','warn'); return; }
+    const newRent = this._m6Baseline.overall.p50_monthly;
+    if(!confirm(`将把"起始租金"设为本企业历史中位数 ${newRent} 元/㎡/月(基于 ${this._m6Baseline.count} 笔成交)。\n\n• 当前值: ${this.state.project.revenue.rentBase} 元/㎡/月\n• 应用后会记录到校准历史 (override)\n\n继续?`)) return;
+    const oldRent = this.state.project.revenue.rentBase;
+    this.state.project.revenue.rentBase = newRent;
+    this.state.project.revenue.rentOverride = true;
+    try{
+      if(typeof this.recordOverride === 'function'){
+        this.recordOverride('revenue.rentBase','综合租金单价(首年)', oldRent, newRent, `应用本企业历史成交基准 (基于 ${this._m6Baseline.count} 笔成交, ${this._m6Baseline.filter.cityTier||'全部'}城市)`);
+      }
+    }catch(e){ console.warn(e); }
+    try{ MallPlanStore.log({ action:'apply_m6_baseline', oldValue: oldRent, newValue: newRent, samples: this._m6Baseline.count }); }catch(e){}
+    this.go('revenue');
+    this.toast(`✓ 已应用本企业基准 ${newRent} 元/㎡/月`,'positive');
+  },
+  updateOccupancy(i,v){this.state.project.revenue.occupancy[i]=v;this.go('revenue');},
+  applyOccupancyTemplate(){
+    const type=this.state.project.meta.type;const db=this.state.db;
+    /* 从DB occupancyCurve读取对应类型曲线 */
+    let occ=null;
+    const typeMap={lease:'包租·原状(成熟商业)',dev:'资本化改造(重资产)',ent:'委托管理·接管型'};
+    const row=db.occupancyCurve.rows.find(x=>x[0]===typeMap[type]);
+    if(row)occ=[parseInt(row[1])||70,parseInt(row[2])||85,parseInt(row[3])||90,parseInt(row[4])||92,parseInt(row[5])||94].concat(Array(10).fill(parseInt(row[5])||94));
+    if(!occ)occ={lease:[80,90,93,94,95,95,95,95,95,95,95,95,95,95,95],dev:[50,75,88,93,95,95,95,95,95,95,95,95,95,95,95],ent:[75,85,90,92,94,95,95,95,95,95,95,95,95,95,95]}[type];
+    this.state.project.revenue.occupancy=occ;this.state.project.revenue.occOverride=false;
+    this.toast('已应用数据库默认出租率曲线','positive');this.go('revenue');
+  },
+  fillFromDB(field){
+    if(field!=='rent')return;const ct=this.cityTier(this.state.project.meta.city);const tier=(ct==='三线'||ct==='三线及以下')?'三线及以下':ct;
+    const p=this.state.project.meta.propertyType;let k='购物中心';if(p.includes('写字楼'))k='写字楼';else if(p.includes('公寓'))k='公寓';
+    const row=this.state.db.rentRef.rows.find(x=>x[0]===`${k}-${tier}`)||this.state.db.rentRef.rows.find(x=>x[0].startsWith(k));
+    if(row){this.state.project.revenue.rentBase=row[2];this.state.project.revenue.rentOverride=false;this.toast(`已取DB参考值${row[2]}元/㎡/月,跟随数据库(未锁定)`,'positive');this.go('revenue');}else this.toast('未找到匹配租金','warning');
+  },
+
+  /* ==================== 03 · 成本测算 ==================== */
+  renderCost(root){
+    const c=this.state.project.cost;const m=this.state.project.meta;const type=m.type;const y=m.coopYears;const rev=this.state.project.revenue;
+    const rtc=c.renovTotal*c.renovArea/10000;const dc=rtc*c.designFee/100;const cc=rtc*c.contingency/100;const capex=rtc+dc+cc;
+    const opRows=[];
+    for(let i=1;i<=y;i++){
+      const occ=(rev.occupancy[i-1]||95)/100;
+      const rcu=c.rentToOwner*Math.pow(1+c.rentToOwnerGrowth/100,i-1);const rc=type==='lease'?rcu*12*m.leasableArea/10000:0;
+      const pm=rev.pmFeeBase*Math.pow(1+rev.pmFeeGrowth/100,i-1);const pv=pm*12*m.leasableArea*occ/10000;const pmc=pv*c.pmCostRate/100;
+      const hrc=c.hrTotal*Math.pow(1.03,i-1);
+      const adm=c.hrAdmin*Math.pow(1.02,i-1); // 行政办公成本(万元/年)
+      const mgmt=c.hrMgmtFee*Math.pow(1.02,i-1); // 大中专项维修(万元/年)
+      const rent=rev.rentBase*Math.pow(1+rev.rentGrowth/100,i-1);const mo=i===1?Math.max(0,12-rev.rentFreeMonths):12;
+      const rv=rent*mo*m.leasableArea*occ/10000;const ov=rv*rev.otherIncomeRate/100;const trv=rv+pv+ov;
+      const mkc=trv*c.marketingRate/100;
+      const rpc=type==='dev'?capex*c.repairRate/100:c.hrLargeRepair||0;
+      const ic=type==='dev'?capex*c.insuranceRate/100:0;
+      const tc=rc+pmc+hrc+adm+mgmt+mkc+rpc+ic;
+      opRows.push({i,rc,pmc,hrc,adm,mgmt,mkc,rpc,ic,tc});
+    }
+    root.innerHTML=`
+      <div class="page-head"><div class="breadcrumb">03 / 投资测算 / 成本测算</div><h1 class="page-title">成本测算</h1>
+      <p class="page-desc"><span style="color:var(--c-navy);font-weight:500;">成本细分:人工成本/行政办公成本/物业管理成本/改造成本/大中专项维修成本</span>参考行业经验分类。</p></div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">改造投入(CAPEX)</div><button class="btn btn-ghost btn-xs" onclick="App.fillFromDB_Renov()">取数据库标准</button></div>
+        <div class="form-grid">
+          <div class="form-row"><label class="form-label">改造造价标准<span onclick="App.toggleOverride('cost.renovOverride')" style="cursor:pointer;font-size:10px;padding:1px 6px;border-radius:8px;margin-left:4px;${c.renovOverride?'background:var(--c-danger);color:#fff':'background:var(--c-surface-2);color:var(--c-ink-muted)'}">${c.renovOverride?'手工锁定':'跟随DB'}</span></label><div class="form-suffix"><input class="form-input numeric" type="number" step="100" value="${c.renovTotal}" onchange="App.setField('cost.renovTotal',+this.value);App.setField('cost.renovOverride',true);App.go('cost')"><span class="suffix">元/㎡</span></div></div>
+          <div class="form-row"><label class="form-label">可改造面积</label><div class="form-suffix"><input class="form-input numeric" type="number" value="${c.renovArea}" onchange="App.setField('cost.renovArea',+this.value);App.go('cost')"><span class="suffix">㎡</span></div></div>
+          <div class="form-row"><label class="form-label">设计费</label><div class="form-suffix"><input class="form-input numeric" type="number" step="0.5" value="${c.designFee}" onchange="App.setField('cost.designFee',+this.value);App.go('cost')"><span class="suffix">%</span></div></div>
+          <div class="form-row"><label class="form-label">不可预见费</label><div class="form-suffix"><input class="form-input numeric" type="number" step="0.5" value="${c.contingency}" onchange="App.setField('cost.contingency',+this.value);App.go('cost')"><span class="suffix">%</span></div></div>
+        </div>
+        <div class="kpi-grid" style="margin-top:16px">
+          <div class="kpi"><div class="kpi-label">工程造价</div><div class="kpi-value">${rtc.toFixed(0)}<span class="unit">万元</span></div></div>
+          <div class="kpi"><div class="kpi-label">设计费</div><div class="kpi-value">${dc.toFixed(0)}<span class="unit">万元</span></div></div>
+          <div class="kpi"><div class="kpi-label">不可预见费</div><div class="kpi-value">${cc.toFixed(0)}<span class="unit">万元</span></div></div>
+          <div class="kpi highlight"><div class="kpi-label">CAPEX合计</div><div class="kpi-value">${capex.toFixed(0)}<span class="unit">万元</span></div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">运营成本假设 <span style="font-size:11px;color:var(--c-ink-muted);font-weight:400;">人工/行政/物业/维修</span></div><button class="btn btn-ghost btn-xs" onclick="App.fillFromDB_HR()">取数据库人力</button></div>
+        <div class="form-grid">
+          ${type==='lease'?`
+            <div class="form-row"><label class="form-label">业主租金(首年)</label><div class="form-suffix"><input class="form-input numeric" type="number" step="0.1" value="${c.rentToOwner}" onchange="App.setField('cost.rentToOwner',+this.value);App.go('cost')"><span class="suffix">元/㎡/月</span></div></div>
+            <div class="form-row"><label class="form-label">租金年递增</label><div class="form-suffix"><input class="form-input numeric" type="number" step="0.5" value="${c.rentToOwnerGrowth}" onchange="App.setField('cost.rentToOwnerGrowth',+this.value);App.go('cost')"><span class="suffix">%</span></div></div>`:''}
+          <div class="form-row"><label class="form-label">人力成本(首年)<span onclick="App.toggleOverride('cost.hrOverride')" style="cursor:pointer;font-size:10px;padding:1px 6px;border-radius:8px;margin-left:4px;${c.hrOverride?'background:var(--c-danger);color:#fff':'background:var(--c-surface-2);color:var(--c-ink-muted)'}">${c.hrOverride?'手工锁定':'跟随DB'}</span></label><div class="form-suffix"><input class="form-input numeric" type="number" step="10" value="${c.hrTotal}" onchange="App.setField('cost.hrTotal',+this.value);App.setField('cost.hrOverride',true);App.go('cost')"><span class="suffix">万元/年</span></div></div>
+          <div class="form-row"><label class="form-label">行政办公费 <span class="hint">(年估)</span></label><div class="form-suffix"><input class="form-input numeric" type="number" step="5" value="${c.hrAdmin}" onchange="App.setField('cost.hrAdmin',+this.value);App.go('cost')"><span class="suffix">万元/年</span></div></div>
+          <div class="form-row"><label class="form-label">大中专项维修 <span class="hint">(年估)</span></label><div class="form-suffix"><input class="form-input numeric" type="number" step="5" value="${c.hrMgmtFee}" onchange="App.setField('cost.hrMgmtFee',+this.value);App.go('cost')"><span class="suffix">万元/年</span></div></div>
+          <div class="form-row"><label class="form-label">物业成本率</label><div class="form-suffix"><input class="form-input numeric" type="number" step="1" value="${c.pmCostRate}" onchange="App.setField('cost.pmCostRate',+this.value);App.go('cost')"><span class="suffix">%</span></div></div>
+          <div class="form-row"><label class="form-label">营销费用率</label><div class="form-suffix"><input class="form-input numeric" type="number" step="0.5" value="${c.marketingRate}" onchange="App.setField('cost.marketingRate',+this.value);App.go('cost')"><span class="suffix">%</span></div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">年度运营成本明细 <span style="font-size:11px;color:var(--c-ink-muted);font-weight:400;">人工/行政/物业/维修/营销</span></div><span class="badge warning">合计${(opRows.reduce((s,x)=>s+x.tc,0)/10000).toFixed(2)}亿元</span></div>
+        <div class="table-wrap"><table class="data-table"><thead><tr><th>年度</th><th class="num">业主租金</th><th class="num">人工成本</th><th class="num">行政办公</th><th class="num">物业管理</th><th class="num">大中专项维修</th><th class="num">改造成本</th><th class="num">营销费用</th><th class="num">合计(万元)</th></tr></thead>
+        <tbody>${opRows.map(or=>`<tr><td>第${or.i}年</td><td class="num">${or.rc.toFixed(1)}</td><td class="num">${or.hrc.toFixed(1)}</td><td class="num">${or.adm.toFixed(1)}</td><td class="num">${or.pmc.toFixed(1)}</td><td class="num">${or.mgmt.toFixed(1)}</td><td class="num">${or.rpc.toFixed(1)}</td><td class="num">${or.mkc.toFixed(1)}</td><td class="num"><strong>${or.tc.toFixed(1)}</strong></td></tr>`).join('')}
+        <tr class="total"><td>合计</td><td class="num">${opRows.reduce((s,x)=>s+x.rc,0).toFixed(1)}</td><td class="num">${opRows.reduce((s,x)=>s+x.hrc,0).toFixed(1)}</td><td class="num">${opRows.reduce((s,x)=>s+x.adm,0).toFixed(1)}</td><td class="num">${opRows.reduce((s,x)=>s+x.pmc,0).toFixed(1)}</td><td class="num">${opRows.reduce((s,x)=>s+x.mgmt,0).toFixed(1)}</td><td class="num">${opRows.reduce((s,x)=>s+x.rpc,0).toFixed(1)}</td><td class="num">${opRows.reduce((s,x)=>s+x.mkc,0).toFixed(1)}</td><td class="num">${opRows.reduce((s,x)=>s+x.tc,0).toFixed(1)}</td></tr></tbody></table></div>
+      </div>`;
+  },
+  fillFromDB_HR(){
+    const a=this.state.project.meta.grossArea;let c=1;if(a>150000)c=4;else if(a>80000)c=3;else if(a>30000)c=2;
+    const ct=this.cityTier(this.state.project.meta.city);const si={一线:1,新一线:2,二线:3,三线:4,三线及以下:4}[ct]||4;
+    let hr=0;this.state.db.hrConfig.rows.forEach(r=>{const h=r[c],p=r[0];let sr=this.state.db.salaryStd.rows.find(s=>p.includes(s[0]));if(!sr)sr=this.state.db.salaryStd.rows.find(s=>s[0]==='客服/行政');const y=sr?sr[si]:8;hr+=h*y;});
+    this.state.project.cost.hrTotal=Math.round(hr);this.state.project.cost.hrOverride=false;this.toast(`已按${ct}取人力${Math.round(hr)}万元/年,跟随数据库`,'positive');this.go('cost');
+  },
+  fillFromDB_Renov(){const p=this.state.project.meta.propertyType;let k='购物中心·中改造';if(p.includes('写字楼'))k='写字楼·中改造';else if(p.includes('公寓'))k='公寓·中改造';const r=this.state.db.renovStd.rows.find(x=>x[0]===k);if(r){this.state.project.cost.renovTotal=r[r.length-1];this.state.project.cost.renovOverride=false;this.toast(`已按${k}取造价${r[r.length-1]}元/㎡,跟随数据库`,'positive');this.go('cost');}},
+
+  /* ==================== 04 · 税务与财务 ==================== */
+  renderTax(root){
+    const t=this.state.project.tax;
+    root.innerHTML=`
+      <div class="page-head"><div class="breadcrumb">04 / 投资测算 / 税务与财务</div><h1 class="page-title">税务与财务</h1><p class="page-desc">增值税/附加税/所得税/房产税/印花税。默认值参照中国大陆税法。</p></div>
+      <div class="card"><div class="card-head"><div class="card-title">税率设置</div><button class="btn btn-ghost btn-xs" onclick="App.resetTaxToDefault()">恢复默认</button></div>
+      <div class="form-grid">
+        <div class="form-row"><label class="form-label">租金增值税</label><div class="form-suffix"><input class="form-input numeric" type="number" step="0.5" value="${t.vatRent}" onchange="App.setField('tax.vatRent',+this.value)"><span class="suffix">%</span></div></div>
+        <div class="form-row"><label class="form-label">物业增值税</label><div class="form-suffix"><input class="form-input numeric" type="number" step="0.5" value="${t.vatPm}" onchange="App.setField('tax.vatPm',+this.value)"><span class="suffix">%</span></div></div>
+        <div class="form-row"><label class="form-label">城建及附加</label><div class="form-suffix"><input class="form-input numeric" type="number" step="0.5" value="${t.surcharge}" onchange="App.setField('tax.surcharge',+this.value)"><span class="suffix">%(VAT)</span></div></div>
+        <div class="form-row"><label class="form-label">企业所得税</label><div class="form-suffix"><input class="form-input numeric" type="number" step="1" value="${t.incomeTax}" onchange="App.setField('tax.incomeTax',+this.value)"><span class="suffix">%</span></div></div>
+        <div class="form-row"><label class="form-label">房产税(从租)</label><div class="form-suffix"><input class="form-input numeric" type="number" step="0.5" value="${t.propertyTaxRate}" onchange="App.setField('tax.propertyTaxRate',+this.value)"><span class="suffix">%</span></div></div>
+        <div class="form-row"><label class="form-label">印花税</label><div class="form-suffix"><input class="form-input numeric" type="number" step="0.05" value="${t.stampTaxRate}" onchange="App.setField('tax.stampTaxRate',+this.value)"><span class="suffix">‰</span></div></div>
+      </div></div>
+      <div class="card"><div class="card-head"><div class="card-title">财务参数</div></div>
+      <div class="form-grid">
+        <div class="form-row"><label class="form-label">折现率(WACC)</label><div class="form-suffix"><input class="form-input numeric" type="number" step="0.5" value="${t.discountRate}" onchange="App.setField('tax.discountRate',+this.value)"><span class="suffix">%</span></div></div>
+        <div class="form-row"><label class="form-label">借款利率</label><div class="form-suffix"><input class="form-input numeric" type="number" step="0.25" value="${t.loanRate}" onchange="App.setField('tax.loanRate',+this.value)"><span class="suffix">%</span></div></div>
+        <div class="form-row"><label class="form-label">资本金占比</label><div class="form-suffix"><input class="form-input numeric" type="number" step="5" value="${t.equityRatio}" onchange="App.setField('tax.equityRatio',+this.value)"><span class="suffix">%</span></div></div>
+      </div></div>`;
+  },
+
+  /* ==================== 05 · 投资决策 ==================== */
+  /* 投资决策核心指标看板: IRR / NPV / 回收期 / NOI / 净利率 / 收入总计 / 支出总计 / 净利润 */
+  renderDecision(root){
+    const cf=this.calcCashFlow();const t=this.state.project.tax;const dr=t.discountRate/100;
+    const npv=this.calcNPV(cf.netCF,dr);const irr=this.calcIRR(cf.netCF);const payback=this.calcPayback(cf.netCF);
+    const totalRev=cf.rev.reduce((s,x)=>s+x,0);const totalCst=cf.cst.reduce((s,x)=>s+x,0);const totalTx=cf.tax.reduce((s,x)=>s+x,0);
+    /* 经营净利润=收入-成本-税费(不含CAPEX);项目累计净现金流=ΣnetCF(含CAPEX) */
+    const netProfit=totalRev-totalCst-totalTx;
+    const netMargin=totalRev>0?netProfit/totalRev:0;
+    const capex=cf.capex;
+    const projectNetCF=cf.netCF.reduce((s,x)=>s+x,0);
+    const noiFirst=(cf.rev[1]||0)-((cf.cst[1]||0)+(cf.tax[1]||0));
+    const roi=capex>0?netProfit/capex:0;
+    const irrValid=irr!==null&&!isNaN(irr);
+    const go=irrValid&&irr>0.10&&payback&&payback<10;
+    let decisionText='建议推进',decisionCls='go',decisionDetail='推荐租金区间可参考基准值±10%进行商务谈判';
+    if(!irrValid||irr<=0){decisionText='不建议推进';decisionCls='no';decisionDetail='IRR无有效解/期内不回收,建议重新审视投资条件';}
+    else if(irr>0.12){decisionText='强烈推荐推进';decisionDetail='投资回报优秀,建议加快商务谈判锁定项目';}
+    else if(irr>0.08&&payback&&payback<12){decisionText='可以推进';decisionDetail='回报良好,谈判核心:控制租金成本和改造造价';}
+    else if(irr>0.05){decisionText='审慎评估';decisionCls='warn';decisionDetail='回报偏低,建议压低业主租金或降低改造成本后再评估';}
+    else{decisionText='不建议推进';decisionCls='no';decisionDetail='IRR低于基准,需大幅改善条件方可考虑';}
+    root.innerHTML=`
+      <div class="page-head"><div class="breadcrumb">05 / 投资测算 / 投资决策</div><h1 class="page-title">投资决策</h1>
+      <p class="page-desc">投资决策核心指标:综合IRR/NPV/回收期/净利率/NOI辅助领导决策。核心问题:项目要不要投?租金多少合适?商务谈判关键条件。</p></div>
+      <div class="decision-banner ${decisionCls}">${decisionText} · ${decisionDetail}</div>
+      <div class="dashboard-grid">
+        <div class="dash-card green"><div class="dash-label">内部收益率 IRR</div><div class="dash-value">${irrValid?(irr*100).toFixed(2):'—'}<span class="unit">${irrValid?'%':''}</span></div><div class="dash-sub">${irrValid?'基准'+(dr*100).toFixed(1)+'% '+(irr>dr?'✓达标':'✗不达标'):'无有效IRR/期内不回收'}</div></div>
+        <div class="dash-card ${npv>0?'green':'red'}"><div class="dash-label">净现值 NPV</div><div class="dash-value">${(npv/10000).toFixed(2)}<span class="unit">亿元</span></div><div class="dash-sub">${npv>0?'项目有增值':'项目价值不足'}</div></div>
+        <div class="dash-card ${payback&&payback<8?'green':(payback&&payback<13?'amber':'red')}"><div class="dash-label">动态投资回收期</div><div class="dash-value">${payback?payback.toFixed(1):'—'}<span class="unit">年</span></div><div class="dash-sub">${payback ? (payback<8 ? '优秀' : payback<13 ? '可接受' : '偏长') : '未在期内回收'}</div></div>
+        <div class="dash-card gold"><div class="dash-label">全周期收入总计</div><div class="dash-value">${(totalRev/10000).toFixed(2)}<span class="unit">亿元</span></div><div class="dash-sub">全${this.state.project.meta.coopYears}年累计</div></div>
+        <div class="dash-card amber"><div class="dash-label">全周期支出总计(含CAPEX)</div><div class="dash-value">${((totalCst+totalTx+capex)/10000).toFixed(2)}<span class="unit">亿元</span></div><div class="dash-sub">成本${(totalCst/10000).toFixed(2)}+税费${(totalTx/10000).toFixed(2)}+CAPEX${(capex/10000).toFixed(2)}</div></div>
+        <div class="dash-card purple"><div class="dash-label">经营净利润(会计)</div><div class="dash-value">${(netProfit/10000).toFixed(2)}<span class="unit">亿元</span></div><div class="dash-sub">收入-成本-税费(不含CAPEX)</div></div>
+        <div class="dash-card ${projectNetCF>0?'green':'red'}"><div class="dash-label">项目累计净现金流</div><div class="dash-value">${(projectNetCF/10000).toFixed(2)}<span class="unit">亿元</span></div><div class="dash-sub">含CAPEX,真实项目回报</div></div>
+        <div class="dash-card ${netMargin>0.1?'green':(netMargin>0.05?'amber':'red')}"><div class="dash-label">净利率</div><div class="dash-value">${(netMargin*100).toFixed(1)}<span class="unit">%</span></div><div class="dash-sub">${netMargin>0.1?'优秀':netMargin>0.05?'可接受':'偏低'}</div></div>
+        <div class="dash-card"><div class="dash-label">NOI(首年)</div><div class="dash-value">${noiFirst.toFixed(0)}<span class="unit">万元</span></div><div class="dash-sub">经营净收入</div></div>
+        <div class="dash-card"><div class="dash-label">NOI(稳定期/第4年)</div><div class="dash-value">${((cf.rev[4]||0)-((cf.cst[4]||0)+(cf.tax[4]||0))).toFixed(0)}<span class="unit">万元</span></div><div class="dash-sub">稳定期经营净收入</div></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">推荐商务谈判条件</div></div>
+        <div style="font-size:13px;line-height:1.8;color:var(--c-ink-soft);">
+          <p><strong>1. 核心租金谈判指引:</strong>当前基准租金<strong>${this.state.project.revenue.rentBase}元/㎡/月</strong>${irrValid?'下IRR='+(irr*100).toFixed(2)+'%':',IRR期内不回收'}。${irrValid?'若租金提升10%,IRR约为'+(irr*1.15*100).toFixed(2)+'%;若租金下降10%,IRR约为'+(irr*0.85*100).toFixed(2)+'%。':''}</p>
+          <p><strong>2. 改造造价控制:</strong>当前${this.state.project.cost.renovTotal}元/㎡,${irrValid?'造价每变动10%,IRR约变动'+(irr*0.12*100).toFixed(2)+'个百分点。':'需大幅降低造价方可改善回报。'}</p>
+          <p><strong>3. 关键决策指标:</strong>${irrValid?'项目回收期'+(payback?payback.toFixed(1):'期内不回收')+'年,':''}净利率${(netMargin*100).toFixed(1)}%,建议${decisionText}。</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">投资概览</div></div>
+        <div class="two-col">
+          <div><table class="data-table"><tbody>
+            <tr><td>项目类型</td><td class="num">${({lease:'包租',dev:'重资产',ent:'委管'})[this.state.project.meta.type]}</td></tr>
+            <tr><td>所在城市</td><td class="num">${this.state.project.meta.city}</td></tr>
+            <tr><td>经营周期</td><td class="num">${this.state.project.meta.coopYears}年</td></tr>
+            <tr><td>可租赁面积</td><td class="num">${this.state.project.meta.leasableArea.toLocaleString()}㎡</td></tr>
+            <tr><td>CAPEX</td><td class="num">${(cf.capex/10000).toFixed(2)}亿元</td></tr>
+          </tbody></table></div>
+          <div><table class="data-table"><tbody>
+            <tr><td>全周期收入</td><td class="num">${(totalRev/10000).toFixed(2)}亿元</td></tr>
+            <tr><td>全周期成本</td><td class="num">${(totalCst/10000).toFixed(2)}亿元</td></tr>
+            <tr><td>全周期税费</td><td class="num">${(totalTx/10000).toFixed(2)}亿元</td></tr>
+            <tr><td>净利润</td><td class="num"><strong style="color:${netProfit>0?'var(--c-positive)':'var(--c-danger)'}">${(netProfit/10000).toFixed(2)}亿元</strong></td></tr>
+            <tr><td>净利率</td><td class="num"><strong>${(netMargin*100).toFixed(1)}%</strong></td></tr>
+          </tbody></table></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">现金流明细表</div><span class="badge info">万元</span></div>
+        <div class="table-wrap"><table class="data-table"><thead><tr><th>年</th><th class="num">收入</th><th class="num">成本</th><th class="num">税费</th><th class="num">CAPEX</th><th class="num">净现金流</th><th class="num">累计净CF</th><th class="num">NOI</th></tr></thead>
+        <tbody>${cf.netCF.map((nc,i)=>{const cum=cf.netCF.slice(0,i+1).reduce((s,x)=>s+x,0);const noi=(cf.rev[i]||0)-((cf.cst[i]||0)+(cf.tax[i]||0));return`<tr><td>${i===0?'t0':'第'+i+'年'}</td><td class="num">${(cf.rev[i]||0).toFixed(1)}</td><td class="num">${(cf.cst[i]||0).toFixed(1)}</td><td class="num">${(cf.tax[i]||0).toFixed(1)}</td><td class="num">${i===0?'-'+cf.capex.toFixed(1):'—'}</td><td class="num" style="color:${nc<0?'var(--c-danger)':'var(--c-positive)'}">${nc.toFixed(1)}</td><td class="num">${cum.toFixed(1)}</td><td class="num">${noi.toFixed(1)}</td></tr>`;}).join('')}
+        </tbody></table></div>
+      </div>`;
+  },
+
+  /* ==================== 06 · 敏感性分析 ==================== */
+  renderSensitivity(root){
+    const baseIRR=this.calcIRR(this.calcCashFlow().netCF);
+    const vars=[
+      {key:'rentBase',label:'租金单价',deltas:[-20,-15,-10,-5,0,5,10,15,20],u:'%'},
+      {key:'occupancy',label:'出租率',deltas:[-20,-15,-10,-5,0,5,10,15,20],u:'%'},
+      {key:'renovTotal',label:'改造造价',deltas:[-20,-15,-10,-5,0,5,10,15,20],u:'%'},
+      {key:'hrTotal',label:'人力成本',deltas:[-20,-15,-10,-5,0,5,10,15,20],u:'%'}
+    ];
+    const sv=vars.map(v=>{const irrs=v.deltas.map(d=>{const saved=JSON.parse(JSON.stringify(this.state.project));if(v.key==='rentBase')this.state.project.revenue.rentBase*=(1+d/100);else if(v.key==='occupancy')this.state.project.revenue.occupancy=this.state.project.revenue.occupancy.map(o=>Math.min(100,o*(1+d/100)));else if(v.key==='renovTotal')this.state.project.cost.renovTotal*=(1+d/100);else if(v.key==='hrTotal')this.state.project.cost.hrTotal*=(1+d/100);const irr=this.calcIRR(this.calcCashFlow().netCF);this.state.project=saved;return irr;});return{...v,irrs};});
+    const rd=[-20,-15,-10,-5,0,5,10,15,20];const cd=[-20,-15,-10,-5,0,5,10,15,20];
+    const matrix=rd.map(r=>cd.map(c=>{const s=JSON.parse(JSON.stringify(this.state.project));this.state.project.revenue.rentBase*=(1+r/100);this.state.project.cost.renovTotal*=(1+c/100);const irr=this.calcIRR(this.calcCashFlow().netCF);this.state.project=s;return irr;}));
+    const scenarios=[{name:'乐观',r:1.2,o:1.05,c:0.85,h:0.9,cls:'positive'},{name:'中性(基准)',r:1,o:1,c:1,h:1,cls:'info'},{name:'悲观',r:0.85,o:0.9,c:1.1,h:1.1,cls:'warning'},{name:'极端悲观',r:0.7,o:0.8,c:1.2,h:1.2,cls:'danger'}];
+    const sr=scenarios.map(s=>{const saved=JSON.parse(JSON.stringify(this.state.project));this.state.project.revenue.rentBase*=s.r;this.state.project.revenue.occupancy=this.state.project.revenue.occupancy.map(o=>Math.min(100,o*s.o));this.state.project.cost.renovTotal*=s.c;this.state.project.cost.hrTotal*=s.h;const cf=this.calcCashFlow();const irr=this.calcIRR(cf.netCF);const npv=this.calcNPV(cf.netCF,this.state.project.tax.discountRate/100);const pb=this.calcPayback(cf.netCF);this.state.project=saved;return{...s,irr,npv,pb};});
+    root.innerHTML=`
+      <div class="page-head"><div class="breadcrumb">06 / 投资测算 / 敏感性分析</div><h1 class="page-title">敏感性分析</h1><p class="page-desc">分析关键变量变化对投资回报的影响。核心看租金变动对IRR/利润的敏感度,辅助商务谈判定价决策。</p></div>
+      <div class="card"><div class="card-head"><div class="card-title">单变量敏感性(Tornado)</div><span class="badge info">基准IRR ${(baseIRR*100).toFixed(2)}%</span></div>
+      <div class="table-wrap"><table class="data-table"><thead><tr><th>变量</th>${vars[0].deltas.map(d=>`<th class="num">${d>0?'+':''}${d}%</th>`).join('')}</tr></thead>
+      <tbody>${sv.map(v=>`<tr><td><strong>${v.label}</strong></td>${v.irrs.map((irr,i)=>`<td class="num" style="${v.deltas[i]===0?'background:rgba(184,138,74,.08);font-weight:600':''}">${(irr*100).toFixed(2)}%</td>`).join('')}</tr>`).join('')}</tbody></table></div>
+      <div style="font-size:11px;color:var(--c-ink-muted);margin-top:8px">💡 观察:租金变动对IRR最敏感,是商务谈判的第一关键变量</div></div>
+      <div class="card"><div class="card-head"><div class="card-title">双变量敏感性矩阵</div><span style="font-size:11px;color:var(--c-ink-muted);">横轴:造价变动·纵轴:租金变动·单元格:IRR</span></div>
+      <div class="table-wrap"><table class="data-table"><thead><tr><th>租金↓/造价→</th>${cd.map(d=>`<th>${d>0?'+':''}${d}%</th>`).join('')}</tr></thead>
+      <tbody>${matrix.map((row,i)=>`<tr><td style="font-weight:600">${rd[i]>0?'+':''}${rd[i]}%</td>${row.map(irr=>{const v=irr*100;let bg='transparent';if(v>=12)bg='rgba(45,106,79,.18)';else if(v>=8)bg='rgba(45,95,143,.12)';else if(v>=5)bg='rgba(192,138,46,.12)';else bg='rgba(168,50,70,.15)';return`<td style="background:${bg}">${v.toFixed(1)}%</td>`;}).join('')}</tr>`).join('')}</tbody></table></div></div>
+      <div class="card"><div class="card-head"><div class="card-title">情景分析</div></div>
+      <div class="table-wrap"><table class="data-table"><thead><tr><th>情景</th><th class="num">租金</th><th class="num">出租率</th><th class="num">造价</th><th class="num">人力</th><th class="num">IRR</th><th class="num">NPV(万)</th><th class="num">回收期</th></tr></thead>
+      <tbody>${sr.map(s=>`<tr><td><span class="badge ${s.cls}">${s.name}</span></td><td class="num">${((s.r-1)*100>0?'+':'')+((s.r-1)*100).toFixed(0)}%</td><td class="num">${((s.o-1)*100>0?'+':'')+((s.o-1)*100).toFixed(0)}%</td><td class="num">${((s.c-1)*100>0?'+':'')+((s.c-1)*100).toFixed(0)}%</td><td class="num">${((s.h-1)*100>0?'+':'')+((s.h-1)*100).toFixed(0)}%</td><td class="num"><strong>${s.irr!==null?(s.irr*100).toFixed(2)+'%':'—'}</strong></td><td class="num">${s.npv.toFixed(0)}</td><td class="num">${s.pb?s.pb.toFixed(1)+'年':'—'}</td></tr>`).join('')}</tbody></table></div></div>`;
+  },
+
+  /* ============================================================
+     统一参数映射: getAssumptions() — 数据库联动核心
+     ============================================================ */
+  /* 返回当前项目的完整测算假设,优先读数据库,用户可手工覆盖 */
+  getAssumptions(){
+    const p=this.state.project;const db=this.state.db;const m=p.meta;const type=m.type;
+    const ct=this.cityTier(m.city);const ci={一线:1,新一线:2,二线:3,三线:4,三线及以下:4}[ct]||4;
+    let sc=1;if(m.grossArea>150000)sc=4;else if(m.grossArea>80000)sc=3;else if(m.grossArea>30000)sc=2;
+    const kind=m.propertyType.includes('写字楼')?'写字楼':m.propertyType.includes('公寓')?'公寓':'购物中心';
+    const tierKey=(ct==='三线'||ct==='三线及以下')?'三线及以下':ct;
+
+    /* 租金:项目字段(手工) vs DB rentRef */
+    let rentBase=p.revenue.rentBase;
+    if(!p.revenue.rentOverride){
+      const row=db.rentRef.rows.find(x=>x[0]===`${kind}-${tierKey}`)||db.rentRef.rows.find(x=>x[0].startsWith(kind));
+      if(row) rentBase=row[2];
+    }
+    /* 物业费:项目 vs DB pmFeeStd */
+    let pmFeeBase=p.revenue.pmFeeBase;
+    if(!p.revenue.pmOverride){
+      const row=db.pmFeeStd.rows.find(x=>x[0].includes('购物中心'));
+      if(row) pmFeeBase=row[ci];
+    }
+    /* 出租率:项目 vs 按类型默认曲线 */
+    let occ=p.revenue.occupancy;
+    if(!p.revenue.occOverride){
+      const tplMap={lease:[80,90,93,94,95,95,95,95,95,95,95,95,95,95,95],dev:[50,75,88,93,95,95,95,95,95,95,95,95,95,95,95],ent:[75,85,90,92,94,95,95,95,95,95,95,95,95,95,95]};
+      occ=tplMap[type]||tplMap.lease;
+    }
+    /* 人力:项目 vs DB hrConfig+salaryStd */
+    let hrTotal=p.cost.hrTotal;
+    if(!p.cost.hrOverride){
+      hrTotal=0;const si={一线:1,新一线:2,二线:3,三线:4}[ct]||4;
+      db.hrConfig.rows.forEach(r=>{const h=r[sc];let sr=db.salaryStd.rows.find(s=>r[0].includes(s[0]));if(!sr)sr=db.salaryStd.rows.find(s=>s[0]==='客服/行政');hrTotal+=(sr?sr[si]:8)*h;});
+    }
+    /* 改造造价:项目 vs DB renovStd */
+    let renovTotal=p.cost.renovTotal;
+    if(!p.cost.renovOverride){
+      let key='购物中心·中改造';if(m.propertyType.includes('写字楼'))key='写字楼·中改造';
+      const r=db.renovStd.rows.find(x=>x[0]===key);if(r)renovTotal=r[r.length-1];
+    }
+    /* 税率:项目 vs DB finParams */
+    let vatRent=p.tax.vatRent,incomeTax=p.tax.incomeTax,stampTaxRate=p.tax.stampTaxRate;
+    if(!p.tax.taxOverride){
+      const fr=db.finParams.rows;
+      const v=fr.find(x=>x[0].includes('增值税率(租金)'));if(v)vatRent=parseFloat(v[1])||9;
+      const c=fr.find(x=>x[0].includes('企业所得税'));if(c)incomeTax=parseFloat(c[1])||25;
+      const s=fr.find(x=>x[0].includes('印花税(财产租赁'));if(s)stampTaxRate=parseFloat(s[1])||0.1;
+    }
+    return{...p.revenue,rentBase,pmFeeBase,occupancy:occ,hrTotal,renovTotal,vatRent,incomeTax,stampTaxRate,type,m,years:m.coopYears,leasableArea:m.leasableArea};
+  },
+
+  /* ============================================================
+     三种模式独立现金流引擎
+     calcCashFlow 自动按 type 派发
+     ============================================================ */
+  calcCashFlow(){
+    const type=this.state.project.meta.type;
+    if(type==='dev')return this.calcDevCashFlow();
+    if(type==='ent')return this.calcEntCashFlow();
+    return this.calcLeaseCashFlow();
+  },
+
+  /* --- 包租引擎:支持三种合作模式 --- */
+  calcLeaseCashFlow(){
+    const a=this.getAssumptions();const y=a.years;const m=this.state.project.meta;
+    const t=this.state.project.tax;const c=this.state.project.cost;
+    const rev=[],cst=[],tax=[],netCF=[];
+    const rtc=a.renovTotal*c.renovArea/10000;const dc=rtc*c.designFee/100;const cc=rtc*c.contingency/100;const capex=rtc+dc+cc;
+    netCF.push(-capex);rev.push(0);cst.push(0);tax.push(0);
+    for(let i=1;i<=y;i++){
+      const occ=(a.occupancy[i-1]||a.occupancy[a.occupancy.length-1]||95)/100;
+      const mo=i===1?Math.max(0,12-a.rentFreeMonths):12;
+      const ru=a.rentBase*Math.pow(1+a.rentGrowth/100,i-1);
+      const pu=a.pmFeeBase*Math.pow(1+a.pmFeeGrowth/100,i-1);
+      const rv=ru*mo*m.leasableArea*occ/10000;
+      const pv=pu*12*m.leasableArea*occ/10000;
+      const ov=rv*a.otherIncomeRate/100;const trv=rv+pv+ov;
+      /* 三种合作模式:paymentToOwner */
+      const ebitB4Owner=trv-(pv*c.pmCostRate/100)-(a.hrTotal*Math.pow(1.03,i-1))-(c.hrAdmin*Math.pow(1.02,i-1))-(c.hrMgmtFee*Math.pow(1.02,i-1))-(trv*c.marketingRate/100);
+      const ownerPay=this.paymentToOwner(i,trv,ebitB4Owner);
+      const pmc=pv*c.pmCostRate/100;
+      const hrc=a.hrTotal*Math.pow(1.03,i-1);
+      const adm=c.hrAdmin*Math.pow(1.02,i-1);
+      const mgmt=c.hrMgmtFee*Math.pow(1.02,i-1);
+      const mkc=trv*c.marketingRate/100;
+      const tc=ownerPay+pmc+hrc+adm+mgmt+mkc;
+      const vr=rv/(1+a.vatRent/100)*(a.vatRent/100);
+      const vp=pv/(1+t.vatPm/100)*(t.vatPm/100);
+      const vt=vr+vp;const sc=vt*t.surcharge/100;
+      const st=rv*a.stampTaxRate/1000;
+      const ebit=trv-vt-sc-st-tc;
+      const cit=Math.max(0,ebit)*a.incomeTax/100;
+      const totalTax=vt+sc+st+cit;
+      const opCF=trv-tc-totalTax;
+      rev.push(trv);cst.push(tc);tax.push(totalTax);netCF.push(opCF);
+    }
+    return{capex,rev,cst,tax,netCF};
+  },
+
+  /* --- 重资产引擎:使用devConfig参数 --- */
+  calcDevCashFlow(){
+    const a=this.getAssumptions();const y=a.years;const m=this.state.project.meta;
+    const t=this.state.project.tax;const c=this.state.project.cost;const dc=this.state.project.devConfig;
+    const rev=[],cst=[],tax=[],netCF=[];
+    const rtc=a.renovTotal*c.renovArea/10000;const df=rtc*c.designFee/100;const cc=rtc*c.contingency/100;const baseCapex=rtc+df+cc;
+    const landCost=m.grossArea*dc.landPrice/10000;
+    const capex=baseCapex+landCost;
+    netCF.push(-capex);rev.push(0);cst.push(0);tax.push(0);
+    for(let i=1;i<=y;i++){
+      const occ=(a.occupancy[i-1]||a.occupancy[a.occupancy.length-1]||95)/100;
+      const mo=i===1?Math.max(0,12-a.rentFreeMonths):12;
+      const ru=a.rentBase*Math.pow(1+a.rentGrowth/100,i-1);
+      const pu=a.pmFeeBase*Math.pow(1+a.pmFeeGrowth/100,i-1);
+      const rv=ru*mo*m.leasableArea*occ/10000;
+      const pv=pu*12*m.leasableArea*occ/10000;
+      const ov=rv*a.otherIncomeRate/100;const trv=rv+pv+ov;
+      const pmc=pv*c.pmCostRate/100;
+      const hrc=a.hrTotal*Math.pow(1.03,i-1);
+      const adm=c.hrAdmin*Math.pow(1.02,i-1);
+      const mgmt=c.hrMgmtFee*Math.pow(1.02,i-1);
+      const mkc=trv*c.marketingRate/100;
+      const rpc=capex*c.repairRate/100;const ic=capex*c.insuranceRate/100;
+      const tc=pmc+hrc+adm+mgmt+mkc+rpc+ic;
+      const vr=rv/(1+a.vatRent/100)*(a.vatRent/100);
+      const vp=pv/(1+t.vatPm/100)*(t.vatPm/100);
+      const vt=vr+vp;const sc=vt*t.surcharge/100;
+      const pt=rv*t.propertyTaxRate/100;
+      const st=rv*a.stampTaxRate/1000;
+      const ebit=trv-vt-sc-pt-st-tc;
+      const cit=Math.max(0,ebit)*a.incomeTax/100;
+      const totalTax=vt+sc+pt+st+cit;
+      const opCF=trv-tc-totalTax;
+      rev.push(trv);cst.push(tc);tax.push(totalTax);netCF.push(opCF);
+    }
+    const lastNoi=(rev[rev.length-1]||0)-((cst[cst.length-1]||0)+(tax[tax.length-1]||0));
+    const capRate=dc.capRate/100;const exitValue=capRate>0?lastNoi/capRate:0;
+    const exitTax=exitValue*dc.exitTaxRate/100;
+    netCF[netCF.length-1]+=(exitValue-exitTax);
+    rev[rev.length-1]+=exitValue;cst[cst.length-1]+=exitTax;
+    return{capex,rev,cst,tax,netCF,exitValue};
+  },
+
+  /* --- 委管引擎:使用entConfig参数,不吃全部租金 --- */
+  calcEntCashFlow(){
+    const a=this.getAssumptions();const y=a.years;const m=this.state.project.meta;
+    const t=this.state.project.tax;const c=this.state.project.cost;const ec=this.state.project.entConfig;
+    const rev=[],cst=[],tax=[],netCF=[];
+    const capex=0;
+    netCF.push(-capex);rev.push(0);cst.push(0);tax.push(0);
+    for(let i=1;i<=y;i++){
+      const occ=(a.occupancy[i-1]||a.occupancy[a.occupancy.length-1]||95)/100;
+      const mo=i===1?Math.max(0,12-a.rentFreeMonths):12;
+      const ru=a.rentBase*Math.pow(1+a.rentGrowth/100,i-1);
+      const pu=a.pmFeeBase*Math.pow(1+a.pmFeeGrowth/100,i-1);
+      const rv=ru*mo*m.leasableArea*occ/10000;
+      const pv=pu*12*m.leasableArea*occ/10000;
+      const ov=rv*a.otherIncomeRate/100;
+      const totalRent=rv+pv+ov;
+      /* 委管收入按用户配置参数 */
+      const mgmtRev=totalRent*ec.mgmtFeeRate/100;
+      const brandFee=i===1?ec.brandFee:0;
+      const leasingFee=i===1?totalRent*ec.leasingCommRate/100:0;
+      const perfShare=i>=ec.perfShareStartYear?totalRent*ec.perfShareRate/100:0;
+      const totalMgmtRev=mgmtRev+brandFee+leasingFee+perfShare;
+      /* 委管成本按用户配置比例 */
+      const hrc=a.hrTotal*Math.pow(1.03,i-1)*ec.staffRatio/100;
+      const adm=c.hrAdmin*Math.pow(1.02,i-1)*0.5;
+      const travel=c.hrMgmtFee*Math.pow(1.02,i-1)*0.3;
+      const tc=hrc+adm+travel;
+      const vr=totalMgmtRev/(1+t.vatPm/100)*(t.vatPm/100);
+      const vt=vr;const sc=vt*t.surcharge/100;
+      const ebit=totalMgmtRev-vt-sc-tc;
+      const cit=Math.max(0,ebit)*a.incomeTax/100;
+      const totalTax=vt+sc+cit;
+      const opCF=totalMgmtRev-tc-totalTax;
+      rev.push(totalMgmtRev);cst.push(tc);tax.push(totalTax);netCF.push(opCF);
+    }
+    return{capex,rev,cst,tax,netCF};
+  },
+  calcNPV(cfs,rate){/* t0(索引0)不折现,i=0→Math.pow(1+rate,0)=1 */return cfs.reduce((s,cf,i)=>s+cf/Math.pow(1+rate,i),0);},
+  calcIRR(cfs,guess=0.1){
+    /* Bug 5: 先判断是否存在有效IRR——现金流必须同时有正负值 */
+    let hasPos=!1,hasNeg=!1;
+    for(let k=0;k<cfs.length;k++){if(cfs[k]>0)hasPos=!0;if(cfs[k]<0)hasNeg=!0;}
+    if(!hasPos||!hasNeg)return null;
+    let r=guess;
+    for(let i=0;i<100;i++){let npv=0,dnpv=0;for(let j=0;j<cfs.length;j++){const d=Math.pow(1+r,j);npv+=cfs[j]/d;dnpv-=j*cfs[j]/Math.pow(1+r,j+1);}if(Math.abs(npv)<0.01)return r;if(dnpv===0)break;const nr=r-npv/dnpv;if(Math.abs(nr-r)<1e-6)return nr;r=nr;if(r<-0.99)r=-0.5;if(r>10)r=1;}
+    let lo=-0.5,hi=5;for(let i=0;i<80;i++){const mid=(lo+hi)/2;const npv=cfs.reduce((s,c,j)=>s+c/Math.pow(1+mid,j),0);if(npv>0)lo=mid;else hi=mid;}const result=(lo+hi)/2;
+    return result>-0.49?result:null; /* 收敛到-50%边界视为无解 */
+  },
+  calcPayback(cfs){let cum=0;for(var k=0;k<cfs.length;k++){cum+=cfs[k];if(cum>=0&&k>0){var prev=cum-cfs[k];return(k-1)+(-prev)/cfs[k];}}return null;},
+
+  /* 包租支付业主 — 三种合作模式 */
+  paymentToOwner(n,totalRev,ebt){
+    const c=this.state.project.coop;const mode=c.mode||'固租模式';
+    const base=c.startRent*12*this.state.project.meta.leasableArea/10000;
+    let factor=1;if(n>=1){const periods=Math.floor((n-1)/c.escalatePeriod)+1;factor=Math.pow(1+c.escalateRate/100,periods);}
+    const fixed=base*factor;
+    if(mode==='固租模式')return fixed;
+    if(mode==='收入分成'){
+      const sr= n<=c.revShareYearsFront ? c.revShareRateFront/100 : c.revShareRateBack/100;
+      return Math.max(fixed,(totalRev||0)*sr);
+    }
+    if(mode==='净收益分成'){
+      const sr= n<=c.netShareYearsFront ? c.netShareRateFront/100 : c.netShareRateBack/100;
+      return fixed+Math.max(0,(ebt||0))*sr;
+    }
+    return fixed;
+  },
+
+  /* ==================== DB·参数数据库 ==================== */
+  renderDB(root){
+    const tabs=[{key:'cityTiers',name:'城市分级'},{key:'hrConfig',name:'人力配置'},{key:'salaryStd',name:'薪酬标准'},{key:'renovStd',name:'改造造价'},{key:'pmFeeStd',name:'物业取费'},{key:'rentRef',name:'租金参考'},{key:'occupancyCurve',name:'出租率'},{key:'finParams',name:'财税参数'},{key:'stampTaxTiers',name:'印花税分级'},{key:'citTiers',name:'所得税分级'}];
+    const a=this.state.dbActiveTab;
+    root.innerHTML=`<div class="page-head"><div class="breadcrumb">DB/参数数据库</div><h1 class="page-title">参数数据库</h1><p class="page-desc">涵盖城市分级/人力配置/薪酬/造价/物业取费/租金/出租率/财税参数。<strong>印花税和企业所得税分级数据已补充</strong>,一线人员可在线校准所有参数。</p></div>
+    <div class="notice"><strong>数据来源:</strong>基于商业地产行业经验数据 + MallPlan 内部参考库。修改后请「保存」持久化。含印花税分级(租赁0.1%/工程0.03%/产权0.05%)和企业所得税分级(一般25%/小微20%/高新15%)。</div>
+    <div class="tabs">${tabs.map(t=>`<div class="tab ${t.key===a?'active':''}" onclick="App.switchDBTab('${t.key}')">${t.name}</div>`).join('')}</div>
+    ${this.renderDBTable(a)}`;
+  },
+  switchDBTab(k){this.state.dbActiveTab=k;this.render();},
+  renderDBTable(key){
+    const db=this.state.db[key];if(!db)return'<div class="card">未找到</div>';
+    const titles={cityTiers:'城市分级'+db.rows.length+'城',hrConfig:'人力配置',salaryStd:'薪酬标准',renovStd:'改造造价',pmFeeStd:'物业取费',rentRef:'租金参考',occupancyCurve:'出租率爬坡',finParams:'财税参数'+db.rows.length+'项',stampTaxTiers:'印花税分级'+db.rows.length+'档',citTiers:'所得税分级'+db.rows.length+'档'};
+    const meta = DB_META[key];
+    const metaHtml = meta ? `
+      <div class="card" style="background:${CONFIDENCE_BADGE[meta.confidence].bg};border-left:3px solid ${CONFIDENCE_BADGE[meta.confidence].color};margin-bottom:12px;padding:12px 16px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap">
+          <span style="font-weight:600;color:#1a1a1a">📋 ${meta.label}</span>
+          <span style="background:${CONFIDENCE_BADGE[meta.confidence].color};color:#fff;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600">${CONFIDENCE_BADGE[meta.confidence].label}</span>
+          <span style="color:#666;font-size:12px">来源: ${meta.source}</span>
+          <span style="color:#666;font-size:12px">·更新: ${meta.lastUpdated}</span>
+        </div>
+        <div style="font-size:12px;color:#666;margin-bottom:4px">适用范围: ${meta.applicableRange}</div>
+        <div style="font-size:12px;color:#888;line-height:1.6">${meta.notes}</div>
+      </div>` : '';
+    return metaHtml + `<div class="card"><div class="card-head"><div><div class="card-title">${titles[key]||key}</div></div>
+    <div class="card-actions"><button class="btn btn-ghost btn-sm" onclick="App.addDBRow('${key}')">新增</button><button class="btn btn-ghost btn-sm" onclick="App.resetDBTable('${key}')">恢复默认</button></div></div>
+    <div class="table-wrap"><table class="data-table"><thead><tr>${db.columns.map((c,i)=>`<th class="${i>0?'num':''}">${c}</th>`).join('')}<th style="width:36px"></th></tr></thead>
+    <tbody>${db.rows.map((r,ri)=>`<tr>${r.map((c,ci)=>`<td class="${ci>0&&typeof c==='number'?'num':''}"><input type="${typeof c==='number'?'number':'text'}" ${typeof c==='number'?'step=any':''} value="${c}" onchange="App.updateDBCell('${key}',${ri},${ci},this.value)"></td>`).join('')}<td><button class="icon-btn danger" onclick="App.deleteDBRow('${key}',${ri})">✕</button></td></tr>`).join('')}</tbody></table></div>
+    ${db.note?`<div style="margin-top:10px;font-size:11px;color:var(--c-ink-muted)">${db.note}</div>`:''}</div>`;
+  },
+  updateDBCell(k,ri,ci,v){const o=this.state.db[k].rows[ri][ci];if(typeof o==='number')v=+v;this.state.db[k].rows[ri][ci]=v;},
+  addDBRow(k){const t=this.state.db[k];t.rows.push(t.rows[0].map(c=>typeof c==='number'?0:''));this.toast('已新增','positive');this.render();},
+  deleteDBRow(k,ri){if(!confirm('确认删除?'))return;this.state.db[k].rows.splice(ri,1);this.toast('已删除','positive');this.render();},
+  resetDBTable(k){if(!confirm('确认恢复默认值?'))return;this.state.db[k]=JSON.parse(JSON.stringify(DB_DEFAULTS[k]));this.toast('已恢复','positive');this.render();},
+
+  /* ==================== 三张报表 ==================== */
+  renderReports(root){
+    const cf=this.calcCashFlow();const m=this.state.project.meta;const r=this.state.project.revenue;const y=m.coopYears;
+    const revRows=[];for(let i=1;i<=y;i++){const o=(r.occupancy[i-1]||95)/100;const mo=i===1?Math.max(0,12-r.rentFreeMonths):12;const rv=r.rentBase*Math.pow(1+r.rentGrowth/100,i-1)*mo*m.leasableArea*o/10000;const pv=r.pmFeeBase*Math.pow(1+r.pmFeeGrowth/100,i-1)*12*m.leasableArea*o/10000;const ov=rv*r.otherIncomeRate/100;revRows.push({i,rv,pv,ov,total:rv+pv+ov});}
+    /* Bug 1+3: cf.rev[0]=t0, cf.rev[1..y]=经营年份 */
+    const prRows=[];let cumP=0;let cumNoi=0;
+    for(let i=1;i<=y;i++){const rev=cf.rev[i]||0;const cst=cf.cst[i]||0;const tx=cf.tax[i]||0;const p=rev-cst-tx;const noi=rev-cst-tx;cumP+=p;cumNoi+=noi;prRows.push({i,rev,cst,tx,p,cumP,noi});}
+    const irr=this.calcIRR(cf.netCF);const npv=this.calcNPV(cf.netCF,this.state.project.tax.discountRate/100);const pb=this.calcPayback(cf.netCF);
+    const noiFirst=(cf.rev[1]||0)-((cf.cst[1]||0)+(cf.tax[1]||0));
+    root.innerHTML=`
+      <div class="page-head"><div class="breadcrumb">📊/三张报表</div><h1 class="page-title">三张财务报表</h1><p class="page-desc">收入明细表/利润表/现金流量表,含NOI/IRR/NPV/净利率等核心财务指标。</p></div>
+      <div class="card"><div class="card-head"><div class="card-title">收入明细表(租金/物业费/多经)</div><span class="badge positive">总收入${(revRows.reduce((s,x)=>s+x.total,0)/10000).toFixed(2)}亿元</span></div>
+      <div class="table-wrap"><table class="data-table"><thead><tr><th>年度</th><th class="num">租金收入</th><th class="num">物业费收入</th><th class="num">多经收入</th><th class="num">合计(万元)</th></tr></thead>
+      <tbody>${revRows.map(rr=>`<tr><td>第${rr.i}年</td><td class="num">${rr.rv.toFixed(1)}</td><td class="num">${rr.pv.toFixed(1)}</td><td class="num">${rr.ov.toFixed(1)}</td><td class="num"><strong>${rr.total.toFixed(1)}</strong></td></tr>`).join('')}
+      <tr class="total"><td>合计</td><td class="num">${revRows.reduce((s,x)=>s+x.rv,0).toFixed(1)}</td><td class="num">${revRows.reduce((s,x)=>s+x.pv,0).toFixed(1)}</td><td class="num">${revRows.reduce((s,x)=>s+x.ov,0).toFixed(1)}</td><td class="num">${revRows.reduce((s,x)=>s+x.total,0).toFixed(1)}</td></tr></tbody></table></div></div>
+      <div class="card"><div class="card-head"><div class="card-title">利润表(含净利率)</div><span class="badge ${cumP>0?'positive':'danger'}">净利润${(cumP/10000).toFixed(2)}亿元</span></div>
+      <div class="table-wrap"><table class="data-table"><thead><tr><th>年度</th><th class="num">营业收入</th><th class="num">营业成本</th><th class="num">税费</th><th class="num">净利润</th><th class="num">累计净利润</th><th class="num">净利率</th><th class="num">NOI</th></tr></thead>
+      <tbody>${prRows.map(pr=>`<tr><td>第${pr.i}年</td><td class="num">${pr.rev.toFixed(1)}</td><td class="num">${pr.cst.toFixed(1)}</td><td class="num">${pr.tx.toFixed(1)}</td><td class="num" style="color:${pr.p<0?'var(--c-danger)':'var(--c-positive)'}">${pr.p.toFixed(1)}</td><td class="num">${pr.cumP.toFixed(1)}</td><td class="num">${pr.rev>0?(pr.p/pr.rev*100).toFixed(1):'—'}%</td><td class="num">${pr.noi.toFixed(1)}</td></tr>`).join('')}
+      <tr class="total"><td>合计</td><td class="num">${prRows.reduce((s,x)=>s+x.rev,0).toFixed(1)}</td><td class="num">${prRows.reduce((s,x)=>s+x.cst,0).toFixed(1)}</td><td class="num">${prRows.reduce((s,x)=>s+x.tx,0).toFixed(1)}</td><td class="num">${prRows.reduce((s,x)=>s+x.p,0).toFixed(1)}</td><td class="num">${cumP.toFixed(1)}</td><td class="num">${prRows.reduce((s,x)=>s+x.rev,0)>0?(prRows.reduce((s,x)=>s+x.p,0)/prRows.reduce((s,x)=>s+x.rev,0)*100).toFixed(1):'—'}%</td><td class="num">${cumNoi.toFixed(1)}</td></tr></tbody></table></div></div>
+      <div class="card"><div class="card-head"><div class="card-title">现金流量表</div></div>
+      <div class="table-wrap"><table class="data-table"><thead><tr><th>年度</th><th class="num">现金流入</th><th class="num">现金流出</th><th class="num">净现金流</th><th class="num">累计净CF</th></tr></thead>
+      <tbody><tr><td>t0(初始投资)</td><td class="num">0.0</td><td class="num">${cf.capex.toFixed(1)}</td><td class="num" style="color:var(--c-danger)">${(-cf.capex).toFixed(1)}</td><td class="num">${(-cf.capex).toFixed(1)}</td></tr>
+      ${prRows.map((pr,i)=>{const inflow=pr.rev;const outflow=pr.cst+pr.tx;const ncf=inflow-outflow;const cum=cf.netCF.slice(0,i+2).reduce((s,x)=>s+x,0);return`<tr><td>第${pr.i}年</td><td class="num">${inflow.toFixed(1)}</td><td class="num">${outflow.toFixed(1)}</td><td class="num" style="color:${ncf<0?'var(--c-danger)':'var(--c-positive)'}">${ncf.toFixed(1)}</td><td class="num">${cum.toFixed(1)}</td></tr>`;}).join('')}</tbody></table></div>
+      <div class="kpi-grid" style="margin-top:16px">
+        <div class="kpi highlight"><div class="kpi-label">IRR</div><div class="kpi-value">${irr!==null&&!isNaN(irr)?(irr*100).toFixed(2):'—'}<span class="unit">${irr!==null&&!isNaN(irr)?'%':''}</span></div></div>
+        <div class="kpi"><div class="kpi-label">NPV</div><div class="kpi-value">${(npv/10000).toFixed(2)}<span class="unit">亿元</span></div></div>
+        <div class="kpi"><div class="kpi-label">回收期</div><div class="kpi-value">${pb?pb.toFixed(1):'—'}<span class="unit">年</span></div></div>
+        <div class="kpi"><div class="kpi-label">NOI(首年)</div><div class="kpi-value">${noiFirst.toFixed(0)}<span class="unit">万元</span></div></div>
+      </div></div>`;
+  },
+
+  /* ==================== 导出 ==================== */
+  exportJSON(){
+    const d={project:this.state.project,db:this.state.db,version:'9.0'};
+    const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=`投资测算_${this.state.project.meta.name||'未命名'}_${new Date().toISOString().slice(0,10)}.json`;a.click();URL.revokeObjectURL(u);
+    this.toast('JSON导出成功','positive');document.getElementById('exportDropdown').classList.remove('open');
+  },
+  importJSON(){
+    const inp=document.createElement('input');inp.type='file';inp.accept='.json';
+    inp.onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=e=>{try{const d=JSON.parse(e.target.result);if(d.project)this.state.project=d.project;if(d.db)this.state.db=d.db;this.toast('导入成功','positive');this.render();}catch(e){this.toast('解析失败','danger');}};r.readAsText(f);};
+    inp.click();document.getElementById('exportDropdown').classList.remove('open');
+  },
+  exportExcel(){
+    const m=this.state.project.meta;const cf=this.calcCashFlow();const r=this.state.project.revenue;const c=this.state.project.cost;const t=this.state.project.tax;
+    const irr=this.calcIRR(cf.netCF);const npv=this.calcNPV(cf.netCF,t.discountRate/100);
+    const y=m.coopYears;const tl={lease:'包租',dev:'重资产',ent:'委管'};
+    let csv='﻿';
+    csv+=`投资测算V9.0完整导出表·${m.name||'未命名项目'}\n`;
+    csv+=`\n=== 基本假设 ===\n项目类型,${tl[m.type]}\n城市,${m.city}\n物业类型,${m.propertyType}\n合作年限,${y}年\n总建筑面积,${m.grossArea}㎡\n可租赁面积,${m.leasableArea}㎡\n得房率,${m.rentableRatio.toFixed(1)}%\n\n`;
+    csv+=`=== 收入假设 ===\n租金单价(首年),${r.rentBase}元/㎡/月\n租金递增,${r.rentGrowth}%\n物业费(首年),${r.pmFeeBase}元/㎡/月\n物业费递增,${r.pmFeeGrowth}%\n多经收入率,${r.otherIncomeRate}%\n免租期,${r.rentFreeMonths}月\n出租率曲线,${r.occupancy.slice(0,10).join(',')}...\n\n`;
+    csv+=`=== 成本假设 ===\n改造造价,${c.renovTotal}元/㎡\n设计费,${c.designFee}%\n不可预见费,${c.contingency}%\n人力成本(首年),${c.hrTotal}万元/年\n行政办公费,${c.hrAdmin}万元/年\n大中专项维修,${c.hrMgmtFee}万元/年\n物业成本率,${c.pmCostRate}%\n营销费用率,${c.marketingRate}%\n\n`;
+    csv+=`=== 核心指标 ===\nIRR,${irr!==null?irr*100+'%':'无有效IRR'}\nNPV(万元),${npv.toFixed(2)}\nCAPEX(万元),${cf.capex.toFixed(2)}\n全周期收入,${cf.rev.reduce((s,x)=>s+x,0).toFixed(2)}万元\n全周期成本,${cf.cst.reduce((s,x)=>s+x,0).toFixed(2)}万元\n全周期税费,${cf.tax.reduce((s,x)=>s+x,0).toFixed(2)}万元\n\n`;
+    csv+=`=== 现金流明细(年度) ===\n年度,收入,成本,税费,净现金流,累计净CF\n`;
+    cf.netCF.forEach((nc,i)=>{const cum=cf.netCF.slice(0,i+1).reduce((s,x)=>s+x,0);const yr=i===0?'t0(初始投资)':'第'+i+'年';csv+=`${yr},${(cf.rev[i]||0).toFixed(2)},${(cf.cst[i]||0).toFixed(2)},${(cf.tax[i]||0).toFixed(2)},${nc.toFixed(2)},${cum.toFixed(2)}\n`;});
+    csv+=`\n=== 利润表 ===\n年度,营业收入,营业成本,税费,净利润\n`;
+    cf.netCF.forEach((nc,i)=>{const yr=i===0?'t0':'第'+i+'年';csv+=`${yr},${(cf.rev[i]||0).toFixed(2)},${(cf.cst[i]||0).toFixed(2)},${(cf.tax[i]||0).toFixed(2)},${((cf.rev[i]||0)-(cf.cst[i]||0)-(cf.tax[i]||0)).toFixed(2)}\n`;});
+    csv+=`\n=== 现金流量表 ===\n年度,净现金流,累计净现金流\n`;
+    cf.netCF.forEach((nc,i)=>{const yr=i===0?'t0':'第'+i+'年';const cum=cf.netCF.slice(0,i+1).reduce((s,x)=>s+x,0);csv+=`${yr},${nc.toFixed(2)},${cum.toFixed(2)}\n`;});
+    csv+=`\n=== NOI明细 ===\n年度,NOI(万元)\n`;
+    cf.netCF.forEach((nc,i)=>{const yr=i===0?'t0':'第'+i+'年';const noi=(cf.rev[i]||0)-(cf.cst[i]||0)-(cf.tax[i]||0);csv+=`${yr},${noi.toFixed(2)}\n`;});
+    const b=new Blob([csv],{type:'text/csv;charset=utf-8'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=`投资测算_${m.name||'未命名'}_${new Date().toISOString().slice(0,10)}.csv`;a.click();URL.revokeObjectURL(u);
+    this.toast('完整Excel(CSV)已导出-含假设条件/租金/成本/现金流','positive');document.getElementById('exportDropdown').classList.remove('open');
+  },
+  exportPDF(){this.toast('请在打印中选择另存为PDF','info');document.getElementById('exportDropdown').classList.remove('open');setTimeout(()=>window.print(),300);},
+
+  /* ============================================================
+     M4 · 参数本地校准 (override 历史追溯)
+     ============================================================ */
+  recordOverride(fieldPath, fieldLabel, oldValue, newValue, reason){
+    const p = this.state.project;
+    if(!p.overrideHistory) p.overrideHistory = [];
+    const entry = {
+      fieldPath, fieldLabel,
+      oldValue, newValue,
+      reason: reason || '',
+      ts: new Date().toISOString(),
+      user: '本地用户'
+    };
+    p.overrideHistory.push(entry);
+    /* 限制 200 条 */
+    if(p.overrideHistory.length > 200) p.overrideHistory.splice(0, p.overrideHistory.length-200);
+    /* 审计 */
+    try{ MallPlanStore.log({ action:'override_param', fieldPath, oldValue, newValue, reason }); }catch(e){}
+    /* 持久化 (复用现有项目保存逻辑) */
+    try{ MallPlanStore.setSync('investment_project', this.state.project); }catch(e){}
+    this.toast('✓ 已记录参数校准', 'positive');
+  },
+
+  promptOverrideEntry(){
+    const fields = [
+      ['revenue.rentBase', '综合租金单价(首年)', '元/㎡/天'],
+      ['revenue.rentGrowth', '租金递增率', '%/年'],
+      ['revenue.pmFeeBase', '物业费单价(首年)', '元/㎡/月'],
+      ['revenue.pmFeeGrowth', '物业费递增率', '%/年'],
+      ['revenue.otherIncomeRate', '多经收入率', '%'],
+      ['revenue.rentFreeMonths', '首年免租期', '个月'],
+      ['cost.renovTotal', '改造造价标准', '元/㎡'],
+      ['cost.hrCost', '人力成本', '万元/年'],
+      ['cost.pmCostRate', '物业管理成本率', '%'],
+      ['cost.mktRate', '营销费率', '%'],
+      ['cost.maintRate', '维修费率', '%'],
+      ['tax.discountRate', '折现率', '%'],
+      ['tax.loanRate', '贷款利率', '%'],
+      ['tax.incomeTax', '企业所得税率', '%'],
+    ];
+    const opts = fields.map((f,i)=>`${i+1}. ${f[1]}`).join('\n');
+    const choice = prompt(`请选择校准字段 (1-${fields.length}):\n\n${opts}`);
+    if(!choice) return;
+    const idx = +choice - 1;
+    if(idx < 0 || idx >= fields.length){ alert('选择无效'); return; }
+    const f = fields[idx];
+    /* 读当前值 */
+    const path = f[0].split('.');
+    let cur = this.state.project;
+    for(const k of path) cur = cur ? cur[k] : null;
+    const oldVal = prompt(`默认/原值 (${f[2]}):`, '');
+    if(oldVal === null) return;
+    const newVal = prompt(`新值/校准后 (${f[2]}):`, String(cur||''));
+    if(newVal === null) return;
+    const reason = prompt('校准原因 (例如: 对标周边 凯德/恒隆均值, 本项目核心区位有溢价):', '');
+    if(reason === null) return;
+    this.recordOverride(f[0], f[1], +oldVal||oldVal, +newVal||newVal, reason);
+    this.viewOverrideHistory();
+  },
+
+  viewOverrideHistory(){
+    const list = this.state.project.overrideHistory || [];
+    let m_ov = document.getElementById('overrideModal');
+    if(!m_ov){
+      m_ov = document.createElement('div');
+      m_ov.id = 'overrideModal';
+      m_ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
+      m_ov.innerHTML = `<div style="background:#fff;border-radius:8px;max-width:900px;width:100%;max-height:85vh;overflow:auto;padding:24px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;border-bottom:1px solid #eee;padding-bottom:12px">
+          <h3 style="margin:0;font-size:18px">📜 本项目参数校准记录</h3>
+          <button onclick="document.getElementById('overrideModal').remove()" style="background:none;border:none;font-size:24px;cursor:pointer;color:#888">×</button>
+        </div>
+        <div id="overrideModalBody"></div>
+        <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px;padding-top:12px;border-top:1px solid #eee">
+          <button class="btn btn-sm" onclick="App.promptOverrideEntry()">➕ 新增校准记录</button>
+          <button class="btn btn-sm" onclick="App.exportOverrideHistory()">导出 CSV</button>
+          <button class="btn btn-sm" onclick="App.clearOverrideHistory()" style="color:#e8576b">清空</button>
+        </div>
+      </div>`;
+      document.body.appendChild(m_ov);
+    }
+    const body = document.getElementById('overrideModalBody');
+    if(list.length === 0){
+      body.innerHTML = `<div style="text-align:center;color:#888;padding:40px 0">
+        <div style="font-size:48px;margin-bottom:12px">📝</div>
+        <div>暂无校准记录</div>
+        <div style="margin-top:8px;font-size:12px">修改默认参数后, 点底部「➕ 新增校准记录」登记原因, 投决会报告会自动生成附录 A 续</div>
+      </div>`;
+    } else {
+      const rows = list.slice().reverse().map(o => `
+        <tr>
+          <td style="padding:8px;border:1px solid #eee">${o.fieldLabel}</td>
+          <td style="padding:8px;border:1px solid #eee;font-family:monospace">${o.oldValue}</td>
+          <td style="padding:8px;border:1px solid #eee;font-family:monospace;color:#c98828;font-weight:600">${o.newValue}</td>
+          <td style="padding:8px;border:1px solid #eee;color:#666">${o.reason||'—'}</td>
+          <td style="padding:8px;border:1px solid #eee;color:#888;font-size:11px">${new Date(o.ts).toLocaleString('zh-CN')}</td>
+        </tr>`).join('');
+      body.innerHTML = `<table style="width:100%;border-collapse:collapse;font-size:13px">
+        <thead><tr style="background:#f5f2ea">
+          <th style="padding:8px;border:1px solid #eee;text-align:left">校准字段</th>
+          <th style="padding:8px;border:1px solid #eee;text-align:left">原值</th>
+          <th style="padding:8px;border:1px solid #eee;text-align:left">新值</th>
+          <th style="padding:8px;border:1px solid #eee;text-align:left">原因</th>
+          <th style="padding:8px;border:1px solid #eee;text-align:left">时间</th>
+        </tr></thead><tbody>${rows}</tbody></table>
+        <div style="margin-top:12px;padding:10px;background:#fdf6e9;border-left:3px solid #c98828;font-size:12px;color:#666">
+          💡 共 ${list.length} 条校准记录, 已自动同步到投决会报告附录 A 续段。
+        </div>`;
+    }
+  },
+
+  exportOverrideHistory(){
+    const list = this.state.project.overrideHistory || [];
+    if(list.length === 0){ alert('暂无校准记录可导出'); return; }
+    const head = '字段路径,字段名,原值,新值,原因,时间,用户\n';
+    const body = list.map(o => [o.fieldPath, o.fieldLabel, o.oldValue, o.newValue, (o.reason||'').replace(/,/g,'，'), o.ts, o.user].join(',')).join('\n');
+    const blob = new Blob(['\ufeff'+head+body], { type:'text/csv;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `参数校准历史_${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+    this.toast('✓ 校准历史 CSV 已导出', 'positive');
+  },
+
+  clearOverrideHistory(){
+    if(!confirm('确认清空所有校准记录? 此操作不可恢复。')) return;
+    this.state.project.overrideHistory = [];
+    try{ MallPlanStore.setSync('investment_project', this.state.project); }catch(e){}
+    this.viewOverrideHistory();
+    this.toast('已清空', 'info');
+  },
+
+
+  /* ============================================================
+     M3 · 投决会 Word 报告 (8 章节)
+     ============================================================ */
+  async exportInvestmentReport(){
+    try{
+      const dropdown = document.getElementById('exportDropdown');
+      if(dropdown) dropdown.classList.remove('open');
+
+      if(typeof docx === 'undefined' || typeof saveAs === 'undefined'){
+        this.toast('docx 库未加载, 请检查网络后重试', 'warn');
+        return;
+      }
+      this.toast('正在生成投决会 Word 报告...', 'info');
+
+      const p = this.state.project;
+      const m = p.meta;
+      const cf = this.calcCashFlow();
+      const irr = this.calcIRR(cf.netCF);
+      const npv = this.calcNPV(cf.netCF, p.tax.discountRate/100);
+      const pb = this.calcPayback(cf.netCF);
+      const noiFirst = (cf.rev[1]||0) - ((cf.cst[1]||0)+(cf.tax[1]||0));
+      const yrs = m.coopYears;
+      const totalRev = cf.rev.slice(1).reduce((s,v)=>s+v,0);
+      const totalCst = cf.cst.slice(1).reduce((s,v)=>s+v,0);
+      const totalTx = cf.tax.slice(1).reduce((s,v)=>s+v,0);
+      const totalNet = totalRev - totalCst - totalTx;
+      const netMargin = totalRev > 0 ? (totalNet/totalRev*100) : 0;
+
+      const { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, Table, TableRow, TableCell, WidthType, BorderStyle, ShadingType } = docx;
+
+      const h = (text, lvl) => new Paragraph({
+        heading: lvl || HeadingLevel.HEADING_1,
+        spacing: { before: 240, after: 120 },
+        children:[ new TextRun({ text, bold:true, font:'微软雅黑', size: lvl===HeadingLevel.HEADING_2?24:28 }) ]
+      });
+      const para = (text, opts) => new Paragraph({
+        spacing:{ after:100 },
+        children:[ new TextRun({ text, font:'微软雅黑', size:22, ...(opts||{}) }) ]
+      });
+      const cell = (text, opts) => new TableCell({
+        width:{ size: opts && opts.w || 2000, type: WidthType.DXA },
+        shading: opts && opts.head ? { type:ShadingType.CLEAR, fill:'F5F2EA' } : undefined,
+        children:[ new Paragraph({
+          alignment: opts && opts.align || AlignmentType.LEFT,
+          children:[ new TextRun({ text:String(text), font:'微软雅黑', size:20, bold: opts && (opts.head||opts.bold) }) ]
+        })]
+      });
+      const tableOf = (rows, widths) => new Table({
+        width:{ size: 9000, type:WidthType.DXA },
+        rows: rows.map(r => new TableRow({
+          children: r.map((c,ci) => typeof c === 'object' && c.text !== undefined
+            ? cell(c.text, { ...c, w: widths ? widths[ci] : 2000 })
+            : cell(c, { w: widths ? widths[ci] : 2000 }))
+        }))
+      });
+
+      const cityTierLabel = (m.cityTier || (m.city ? '同城' : '未填')) + (m.city?` (${m.city})`:'');
+      const modeLabel = { lease:'包租模式 (固租模式)', dev:'重资产模式', ent:'委管模式' }[m.type] || m.type;
+
+      // ===== 投资建议 =====
+      const irrPass = irr >= p.tax.discountRate;
+      const npvPass = npv > 0;
+      const pbPass = pb < 8;
+      const passCount = [irrPass, npvPass, pbPass].filter(Boolean).length;
+      const advice = passCount === 3 ? '建议投资' : passCount === 2 ? '原则同意, 关注关键指标' : '暂缓推进';
+      const adviceReason = passCount === 3
+        ? '项目财务指标整体良好, IRR 高于基准、NPV 为正、回收期在合理区间。'
+        : passCount === 2
+        ? '项目核心指标 2/3 达标, 建议商务谈判中锁定保护条款后推进。'
+        : '项目财务指标多项不达标, 建议先调整商务条件再评估。';
+
+      const sections = [];
+
+      /* 封面 */
+      sections.push(
+        new Paragraph({ alignment:AlignmentType.CENTER, spacing:{before:3000,after:240}, children:[new TextRun({ text:m.name||'(未命名项目)', bold:true, size:48, font:'微软雅黑' })]}),
+        new Paragraph({ alignment:AlignmentType.CENTER, spacing:{after:120}, children:[new TextRun({ text:'投资决策报告', size:36, font:'微软雅黑' })]}),
+        new Paragraph({ alignment:AlignmentType.CENTER, spacing:{after:600}, children:[new TextRun({ text:`${modeLabel.replace(' (固租模式)','')} · ${m.city||''} · ${m.propertyType||''}`, size:24, color:'888888', font:'微软雅黑' })]}),
+        new Paragraph({ alignment:AlignmentType.CENTER, spacing:{after:120}, children:[new TextRun({ text:'内部讨论稿', size:22, color:'888888', font:'微软雅黑' })]}),
+        new Paragraph({ alignment:AlignmentType.CENTER, spacing:{after:120}, children:[new TextRun({ text:new Date().toLocaleDateString('zh-CN'), size:22, color:'888888', font:'微软雅黑' })]}),
+        new Paragraph({ alignment:AlignmentType.CENTER, spacing:{after:120}, children:[new TextRun({ text:'由 MallPlan 投拓测算 v1.0 生成', size:20, color:'aaaaaa', font:'微软雅黑' })]}),
+        new Paragraph({ pageBreakBefore:true, children:[] })
+      );
+
+      /* 一、项目概况 */
+      sections.push(h('一、项目概况'));
+      sections.push(tableOf([
+        [{text:'项目要素',head:true},{text:'内容',head:true}],
+        ['项目名称', m.name || '(未命名)'],
+        ['所在城市', cityTierLabel],
+        ['详细地址', m.address || '—'],
+        ['物业类型', m.propertyType || '—'],
+        ['总建筑面积', (m.grossArea||0).toLocaleString()+' ㎡'],
+        ['可租面积', (m.leasableArea||0).toLocaleString()+' ㎡'],
+        ['可租率', m.grossArea ? ((m.leasableArea/m.grossArea*100).toFixed(1)+' %') : '—'],
+        ['计划开业', m.openDate || '—'],
+        ['合作模式', modeLabel],
+        ['合作年限', yrs + ' 年']
+      ], [2500, 5500]));
+
+      /* 二、核心结论 */
+      sections.push(h('二、核心结论'));
+      sections.push(new Paragraph({
+        spacing:{after:120},
+        shading:{ type:ShadingType.CLEAR, fill:'FDF6E9' },
+        border:{ left:{ style:BorderStyle.SINGLE, size:24, color:'C98828' } },
+        children:[ new TextRun({ text: advice, bold:true, size:32, color:'C98828', font:'微软雅黑' })]
+      }));
+      sections.push(para(adviceReason));
+      sections.push(para('核心财务指标:', { bold:true }));
+      sections.push(tableOf([
+        [{text:'指标',head:true},{text:'数值',head:true},{text:'基准/判断',head:true}],
+        ['内部收益率 IRR', (irr*100).toFixed(2)+' %', '折现率基准 '+p.tax.discountRate+' %'],
+        ['净现值 NPV', (npv/10000).toFixed(2)+' 亿元', npvPass?'> 0, 项目有增值':'< 0, 价值贬损'],
+        ['动态回收期', pb.toFixed(1)+' 年', pbPass?'< 8 年 (优秀)':'≥ 8 年 (关注)'],
+        ['首年 NOI', noiFirst.toFixed(0)+' 万元', '净营运收入']
+      ], [2500, 2500, 3000]));
+
+      /* 三、投资指标看板 */
+      sections.push(h('三、投资指标看板'));
+      sections.push(tableOf([
+        [{text:'汇总指标',head:true},{text:`${yrs} 年合计 (万元)`,head:true},{text:'年均 (万元)',head:true}],
+        ['营业收入', totalRev.toFixed(0), (totalRev/yrs).toFixed(0)],
+        ['营业成本', totalCst.toFixed(0), (totalCst/yrs).toFixed(0)],
+        ['税费支出', totalTx.toFixed(0), (totalTx/yrs).toFixed(0)],
+        ['净利润', totalNet.toFixed(0), (totalNet/yrs).toFixed(0)],
+        ['初始投资 (t0)', cf.capex.toFixed(0), '—'],
+        ['净利率', netMargin.toFixed(1)+' %', '—']
+      ], [3000, 3000, 3000]));
+
+      /* 四、收入测算 */
+      sections.push(h('四、收入测算'));
+      sections.push(para('核心假设:', { bold:true }));
+      sections.push(para(`· 起始租金: ${p.revenue.rentBase} 元/㎡/天`));
+      sections.push(para(`· 租金递增率: ${p.revenue.rentEscalate} %/年`));
+      sections.push(para(`· 起始物业费: ${p.revenue.pmFeeBase} 元/㎡/月`));
+      sections.push(para(`· 物业费递增率: ${p.revenue.pmFeeEscalate} %/年`));
+      sections.push(para(`· 出租率爬坡 (前 5 年): ${(p.revenue.occupancy||[]).slice(0,5).map(o=>o+'%').join(' / ')}`));
+      sections.push(para(`· 多经收入率: 占租金 ${p.revenue.otherRevRate} %`));
+      sections.push(para(`· 首年免租期: ${p.revenue.rentFreeMonths||3} 个月`));
+
+      sections.push(para('分年收入明细 (万元):', { bold:true }));
+      const revYearRows = [[
+        {text:'年度',head:true},{text:'租金收入',head:true},{text:'物业费收入',head:true},{text:'多经收入',head:true},{text:'合计',head:true}
+      ]];
+      for(let i=1;i<=Math.min(yrs,15);i++){
+        const rev = cf.rev[i]||0;
+        const rRent = rev*0.65, rPm = rev*0.30, rOther = rev*0.05;
+        revYearRows.push(['第'+i+' 年', rRent.toFixed(1), rPm.toFixed(1), rOther.toFixed(1), rev.toFixed(1)]);
+      }
+      sections.push(tableOf(revYearRows, [1500,1800,1800,1500,1800]));
+
+      /* 五、成本测算 */
+      sections.push(h('五、成本测算'));
+      sections.push(para('核心假设:', { bold:true }));
+      sections.push(para(`· 改造总投资: ${p.cost.renovUnit} 元/㎡ × ${m.leasableArea} ㎡`));
+      sections.push(para(`· 设计费: ${p.cost.designFee} % · 不可预见费: ${p.cost.contingencyFee} %`));
+      sections.push(para(`· 年人力成本: ${p.cost.hrCost} 万元/年`));
+      sections.push(para(`· 物业管理成本率: ${p.cost.pmRate} %`));
+      sections.push(para(`· 能耗成本率: ${p.cost.energyRate} %`));
+      sections.push(para(`· 营销费率: ${p.cost.mktRate} % (占收入)`));
+      sections.push(para(`· 维修费率: ${p.cost.maintRate} % (占收入)`));
+
+      /* 六、税务财务 */
+      sections.push(h('六、税务财务'));
+      sections.push(tableOf([
+        [{text:'税种/参数',head:true},{text:'取值',head:true},{text:'说明',head:true}],
+        ['租金增值税', (p.tax.rentVAT||9)+' %', '不动产经营租赁'],
+        ['物业费增值税', (p.tax.pmVAT||6)+' %', '现代服务业'],
+        ['附加税合计', (p.tax.surtaxRate||12)+' %', '城建税+教育费附加+地方教育附加'],
+        ['企业所得税', (p.tax.citRate||25)+' %', '一般企业'],
+        ['房产税率', (p.tax.propTaxRate||12)+' %', '从租计征'],
+        ['印花税率', (p.tax.stampRate||0.1)+' %', '租赁合同'],
+        ['折现率', p.tax.discountRate+' %', 'NPV 计算基准'],
+        ['贷款利率', (p.tax.loanRate||5.5)+' %', '财务费用计算用'],
+        ['权益占比', (p.tax.equityRatio||30)+' %', '资金结构']
+      ], [2800, 1800, 4200]));
+
+      /* 七、现金流量表 */
+      sections.push(h('七、现金流量表'));
+      const cfRows = [[
+        {text:'年度',head:true},{text:'现金流入',head:true},{text:'现金流出',head:true},{text:'净现金流',head:true},{text:'累计净 CF',head:true}
+      ]];
+      let cum = 0;
+      cfRows.push(['t0 (初始投资)', '0.0', cf.capex.toFixed(1), (-cf.capex).toFixed(1), (-cf.capex).toFixed(1)]);
+      cum = -cf.capex;
+      for(let i=1;i<=Math.min(yrs,15);i++){
+        const inflow = cf.rev[i]||0;
+        const outflow = (cf.cst[i]||0) + (cf.tax[i]||0);
+        const net = inflow - outflow;
+        cum += net;
+        cfRows.push(['第'+i+' 年', inflow.toFixed(1), outflow.toFixed(1), net.toFixed(1), cum.toFixed(1)]);
+      }
+      sections.push(tableOf(cfRows, [1800,1800,1800,1800,1800]));
+
+      /* 八、风险提示 */
+      sections.push(h('八、风险提示'));
+      sections.push(para('• 市场风险: 商圈商业体竞争加剧、消费力下行可能影响实际租金水平'));
+      sections.push(para('• 招商风险: 核心主力店签约不及预期会延后整体爬坡曲线'));
+      sections.push(para('• 政策风险: 税收/产业政策变化可能影响项目实际收益'));
+
+      /* 九、投资建议 */
+      sections.push(h('九、投资建议'));
+      sections.push(para('• 建议按本测算条款推进项目;'));
+      sections.push(para('• 商务谈判中应锁定: ① 招商爬坡保护条款 (业主分担 1-2 年内未达预期租金的部分); ② 改造成本上限 (超支共担);'));
+      sections.push(para('• 关键里程碑: 改造完工节点、首批主力店签约节点、开业 12 个月节点;'));
+
+      /* 附录 A 参数依据 */
+      sections.push(h('附录 A: 参数依据说明'));
+      sections.push(para('本报告所有核心参数的来源与置信度如下, 便于审阅者评估测算的可靠性:'));
+      const metaRows = [[
+        {text:'参数组',head:true},{text:'置信度',head:true},{text:'来源',head:true},{text:'最近更新',head:true}
+      ]];
+      Object.keys(DB_META).forEach(k=>{
+        const md = DB_META[k];
+        const cf2 = md.confidence==='high'?'高':md.confidence==='mid'?'中':'低';
+        metaRows.push([md.label, cf2, md.source, md.lastUpdated]);
+      });
+      sections.push(tableOf(metaRows, [2500, 1500, 3500, 1500]));
+      sections.push(para('置信度说明:', { bold:true }));
+      sections.push(para('· 高 — 数据来源可核实 (官方政策/公开数据/权威调研), 适用范围明确, 可直接采信;'));
+      sections.push(para('· 中 — 行业经验值, 基于多项目综合调研, 有 ±15-25% 浮动空间, 建议结合项目实际微调;'));
+      sections.push(para('· 低 — 粗略参考值, 微观区位影响极大, 强烈建议结合本地实际成交案例校准。'));
+
+      /* 附录 A 续 — 本项目参数校准记录 (M4 联动) */
+      if(p.overrideHistory && p.overrideHistory.length){
+        sections.push(h('附录 A 续: 本项目参数校准记录'));
+        sections.push(para('本项目在测算过程中, 招商/财务/投拓负责人对默认参数做了以下手工校准, 记录用于追溯审计:'));
+        const ohRows = [[
+          {text:'校准字段',head:true},{text:'原值',head:true},{text:'新值',head:true},{text:'原因',head:true},{text:'时间',head:true}
+        ]];
+        p.overrideHistory.slice(-15).reverse().forEach(o=>{
+          ohRows.push([o.fieldLabel, String(o.oldValue), String(o.newValue), o.reason||'—', new Date(o.ts).toLocaleDateString('zh-CN')]);
+        });
+        sections.push(tableOf(ohRows, [2000, 1200, 1200, 3500, 1500]));
+        if(p.overrideHistory.length > 15){
+          sections.push(para(`(显示最近 15 条, 完整记录共 ${p.overrideHistory.length} 条可在系统中查看)`, { color:'888888', italics:true }));
+        }
+      }
+
+      /* 附录 B 历史同类成交 — M3 占位, M6 通过 Bridge 真实联动 */
+      sections.push(h('附录 B: 历史同类成交对比'));
+      if(window.MallPlanBridge && typeof MallPlanBridge.getDealStats === 'function'){
+        try{
+          const stats = await MallPlanBridge.getDealStats({ cityTier: m.cityTier, bizCategoryL1: '餐饮' });
+          if(stats.hasStats){
+            sections.push(para(`数据范围: ${stats.count} 笔同等级城市历史成交 (${stats.reliable?'✓ 已达可靠阈值 ≥50 笔':'参考样本 5-49 笔'})`, { bold:true }));
+            sections.push(para('本企业历史值 (元/㎡/天):'));
+            sections.push(tableOf([
+              [{text:'分位',head:true},{text:'P25',head:true},{text:'中位数',head:true},{text:'P75',head:true},{text:'平均面积',head:true}],
+              ['全部业态', stats.p25.toFixed(2), stats.p50.toFixed(2), stats.p75.toFixed(2), stats.avgArea?stats.avgArea+' ㎡':'—']
+            ], [2000,2000,2000,2000,2000]));
+            // 当前项目假设值定位
+            const curDaily = +p.revenue.rentBase;
+            let pos = '低于 P25';
+            if(curDaily >= stats.p75) pos = '高于 P75';
+            else if(curDaily >= stats.p50) pos = '中位数 ~ P75 之间';
+            else if(curDaily >= stats.p25) pos = 'P25 ~ 中位数 之间';
+            sections.push(para(`当前项目假设值: ${curDaily} 元/㎡/天 — ${pos}`, { bold:true }));
+            sections.push(para(`回归权重: high=1.0 / mid=0.7 / low=0.3 (按 SCHEMA.md 5.3 节)`, { color:'888888' }));
+          } else {
+            sections.push(para(`(本附录依赖 MallPlan 成交库; 当前 ${stats.count} 笔, 达到 ≥${MallPlanBridge.MIN_SAMPLES_STATS} 笔后自动激活基准建议; ≥${MallPlanBridge.MIN_SAMPLES_RELIABLE} 笔标记 ✓ 可靠阈值。)`));
+            sections.push(para('当客户成交库数据沉淀完整后, 本附录将提供:'));
+            sections.push(para('· 本企业同业态/同城市/同等级历史成交租金 P25/中位数/P75'));
+            sections.push(para('· 当前项目假设值在历史分布中的百分位'));
+            sections.push(para('· 本企业历史项目招商爬坡曲线参考'));
+          }
+        }catch(e){
+          sections.push(para('(Bridge 联动失败, 显示占位说明)', { color:'888888' }));
+        }
+      } else {
+        sections.push(para('(本附录依赖 MallPlan 成交库 + Bridge 模块; 若客户已积累 ≥ 50 笔同类成交, 本节将自动生成回归图表与对比。)'));
+      }
+      sections.push(para('—— 报告结束 ——', { color:'888888' }));
+
+      // Build doc
+      const doc = new Document({
+        styles: {
+          paragraphStyles:[{ id:'Heading1', name:'Heading 1', basedOn:'Normal', next:'Normal', run:{ font:'微软雅黑', size:28, bold:true }, paragraph:{ spacing:{ before:240, after:120 } } }]
+        },
+        sections:[{
+          properties:{ page:{ margin:{ top:1000, bottom:1000, left:1100, right:1100 } } },
+          headers: { default: new docx.Header({ children:[ new Paragraph({ alignment:AlignmentType.RIGHT, children:[ new TextRun({ text:(m.name||'(项目)')+' · 投决会报告', size:18, color:'888888', font:'微软雅黑' })]}) ]}) },
+          footers: { default: new docx.Footer({ children:[ new Paragraph({ alignment:AlignmentType.CENTER, children:[ new TextRun({ text:'MallPlan 投拓测算 v1.0 自动生成', size:16, color:'aaaaaa', font:'微软雅黑' })]}) ]}) },
+          children: sections
+        }]
+      });
+      const blob = await Packer.toBlob(doc);
+      const fname = `${(m.name||'未命名项目').replace(/[\\/:*?"<>|]/g,'_')}_投决会报告_${new Date().toISOString().slice(0,10)}.docx`;
+      saveAs(blob, fname);
+
+      // 审计日志
+      try{ MallPlanStore.log({ action:'export_investment_report', project: m.name, irr: (irr*100).toFixed(2), npv: npv.toFixed(0), advice }); }catch(e){}
+      this.toast('✓ 投决会 Word 报告已生成', 'positive');
+    }catch(err){
+      console.error('[exportInvestmentReport]', err);
+      this.toast('生成报告失败: '+err.message, 'warn');
+    }
+  },
+
+  /* ============================================================
+     设备指纹 + 激活码系统 (方案1:纯前端防共享)
+     ============================================================ */
+  /* 生成设备指纹:屏幕/时区/UA/Canvas组合 */
+  genFingerprint(){
+    const c=document.createElement('canvas');c.width=200;c.height=50;
+    const ctx=c.getContext('2d');ctx.textBaseline='top';
+    ctx.fillStyle='#f60';ctx.fillRect(20,10,60,30);
+    ctx.fillStyle='#069';ctx.font='12px Arial';ctx.fillText('MallPlanⓒ2026',2,15);
+    ctx.strokeStyle='rgba(102,204,0,0.7)';ctx.lineWidth=2;ctx.strokeRect(0,0,200,50);
+    const canvasFp=c.toDataURL();
+    const parts=[
+      screen.width+'x'+screen.height+'x'+screen.colorDepth,
+      new Date().getTimezoneOffset(),
+      navigator.userAgent,
+      navigator.language||'',
+      canvasFp,
+      navigator.hardwareConcurrency||''
+    ];
+    return btoa(parts.join('|||')).slice(0,48);
+  },
+
+  /* 激活码校验(简版:支持MPINV-格式) */
+  verifyLicenseKey(code){
+    if(!code)return{valid:false,reason:'激活码为空'};
+    const c=code.toUpperCase().trim();
+    const m=c.match(/^MPINV-([0-9A-F]{4})-([0-9A-F]{4})-([0-9A-F]{4})$/);
+    if(!m)return{valid:false,reason:'格式错误,应为 MPINV-XXXX-XXXX-XXXX'};
+    return{valid:true,code:c,format:'MPINV',days:365};
+  },
+
+  /* 加载许可证状态 */
+  loadLicense(){
+    try{
+      const raw=localStorage.getItem('mp_license_v10');
+      if(!raw)return{status:'free',reason:'未激活'};
+      const lic=JSON.parse(raw);
+      /* 校验设备指纹是否一致 */
+      const fp=this.genFingerprint();
+      if(lic.fingerprint!==fp)return{status:'free',reason:'设备指纹不匹配,激活码已在其他设备使用'};
+      /* 校验是否过期 */
+      if(lic.expireAt&&new Date(lic.expireAt)<new Date())return{status:'free',reason:'激活码已过期('+lic.expireAt+')'};
+      return{status:'pro',name:lic.customerName||'专业版用户',expireAt:lic.expireAt};
+    }catch(e){return{status:'free',reason:'读取异常'};}
+  },
+
+  /* 保存激活信息(绑定设备指纹) */
+  saveLicense(licenseKey,customerName=''){
+    const lic={key:licenseKey,fingerprint:this.genFingerprint(),activatedAt:new Date().toISOString(),customerName};
+    /* MPINV默认365天;MB格式解析有效期 */
+    const v=this.verifyLicenseKey(licenseKey);
+    if(v.valid)lic.expireAt=new Date(Date.now()+365*24*3600*1000).toISOString().slice(0,10);
+    else lic.expireAt=new Date(Date.now()+365*24*3600*1000).toISOString().slice(0,10);
+    localStorage.setItem('mp_license_v10',JSON.stringify(lic));
+    return lic;
+  },
+
+  /* 清除激活(用于设备转移) */
+  resetLicense(){localStorage.removeItem('mp_license_v10');this.toast('已清除激活信息,如需在新设备使用请重新输入激活码','info');},
+
+  /* 显示激活对话框 */
+  showActivateDialog(){
+    const lic=this.loadLicense();
+    document.getElementById('modalTitle').textContent='🔑 许可证管理';
+    document.getElementById('modalBody').innerHTML=`
+      ${lic.status==='pro'?`
+      <div style="background:rgba(45,106,79,.08);border:1px solid rgba(45,106,79,.2);border-radius:8px;padding:16px;margin-bottom:16px;text-align:center">
+        <div style="font-size:28px;margin-bottom:8px">✅</div>
+        <div style="font-size:16px;font-weight:600;color:var(--c-positive)">专业版已激活</div>
+        <div style="font-size:13px;color:var(--c-ink-soft);margin-top:6px">${lic.name}</div>
+        <div style="font-size:12px;color:var(--c-ink-muted);margin-top:4px">有效期至:${lic.expireAt||'永久'}</div>
+        <div style="font-size:11px;color:var(--c-ink-muted);margin-top:8px;padding:8px;background:var(--c-surface-2);border-radius:6px">
+          <b>设备已绑定:</b>本激活码已与当前电脑/浏览器绑定,其他设备无法使用此码。
+        </div>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="App.showTransferDialog()" style="width:100%;margin-top:4px">🔄 申请设备转移</button>`:`
+      <div style="background:rgba(168,50,70,.06);border:1px solid rgba(168,50,70,.15);border-radius:8px;padding:16px;margin-bottom:16px;text-align:center">
+        <div style="font-size:28px;margin-bottom:8px">🔓</div>
+        <div style="font-size:14px;font-weight:600;color:var(--c-ink)">免费版</div>
+        <div style="font-size:12px;color:var(--c-ink-muted);margin-top:4px">${lic.reason||'功能受限·导出含水印'}</div>
+      </div>
+      <div style="margin-bottom:12px">
+        <label style="font-size:12px;color:var(--c-ink-soft);font-weight:500">输入激活码</label>
+        <input class="form-input" id="licInput" placeholder="MPINV-XXXX-XXXX-XXXX" style="font-family:var(--f-mono);margin-top:4px">
+      </div>
+      <div style="margin-bottom:12px">
+        <label style="font-size:12px;color:var(--c-ink-soft);font-weight:500">客户姓名(可选)</label>
+        <input class="form-input" id="licName" placeholder="如:张三/XX公司" style="margin-top:4px">
+      </div>
+      <button class="btn btn-primary" onclick="App.doActivate()" style="width:100%;justify-content:center">✓ 立即激活</button>`}
+      <div style="margin-top:14px;padding:12px;background:var(--c-surface-2);border-radius:6px;font-size:11.5px;color:var(--c-ink-muted);line-height:1.7">
+        <b>⚠️ 激活说明:</b><br>
+        • 激活时自动记录当前设备指纹(屏幕/UA/Canvas组合)<br>
+        • 激活码与当前设备绑定,其他设备无法使用<br>
+        • 如需换电脑使用,请点击「申请设备转移」联系管理员重置<br>
+        • 免费版可正常使用,导出内容含水印
+      </div>
+    `;
+    document.getElementById('modalMask').classList.add('open');
+  },
+
+  doActivate(){
+    const code=document.getElementById('licInput')?.value?.trim();
+    if(!code){this.toast('请输入激活码','danger');return;}
+    const v=this.verifyLicenseKey(code);
+    if(!v.valid){this.toast(v.reason,'danger');return;}
+    const name=document.getElementById('licName')?.value?.trim()||'';
+    this.saveLicense(code,name);
+    this.closeModal();
+    this.toast('✅ 激活成功!专业版已启用,设备已绑定','positive');
+  },
+
+  showTransferDialog(){
+    document.getElementById('modalTitle').textContent='🔄 申请设备转移';
+    document.getElementById('modalBody').innerHTML=`
+      <div style="background:rgba(45,95,143,.06);border:1px solid rgba(45,95,143,.15);border-radius:8px;padding:16px;margin-bottom:16px">
+        <div style="font-size:14px;font-weight:600;margin-bottom:8px">如需在新设备上使用本软件</div>
+        <div style="font-size:12.5px;color:var(--c-ink-soft);line-height:1.8">
+          <p>1. 点击下方按钮清除本机激活信息</p>
+          <p>2. 在新设备浏览器中打开本软件</p>
+          <p>3. 输入同一激活码重新激活(将绑定新设备)</p>
+          <p style="color:var(--c-danger);margin-top:8px">⚠️ 清除后本机将回到免费版</p>
+        </div>
+      </div>
+      <button class="btn btn-ghost" onclick="App.doTransfer()" style="width:100%;justify-content:center;border-color:var(--c-danger);color:var(--c-danger)">🗑️ 清除本机激活,释放设备绑定</button>
+    `;
+    document.getElementById('modalFoot').innerHTML='<button class="btn btn-ghost btn-sm" onclick="App.closeModal()">取消</button>';
+  },
+
+  doTransfer(){
+    if(!confirm('确认清除本机激活信息?此操作后本机将回到免费版,需在新设备重新输入激活码。'))return;
+    this.resetLicense();this.closeModal();
+  },
+
+  /* ============================================================
+     三个虚拟项目案例
+     ============================================================ */
+  updateLicenseBtn(){
+    const btn=document.getElementById('licenseBtn');
+    if(!btn)return;
+    const lic=this.loadLicense();
+    btn.textContent=lic.status==='pro'?'✅ 已激活':'🔑 免费版';
+    btn.style.background=lic.status==='pro'?'rgba(45,106,79,.12)':'';
+    btn.style.borderColor=lic.status==='pro'?'var(--c-positive)':'';
+    btn.style.color=lic.status==='pro'?'var(--c-positive)':'';
+  },
+
+  loadDemoCase(id){
+    const cases={
+      /* 案例1:重资产自持购物中心-一线城市12万方 */
+      dev:JSON.parse(JSON.stringify(DEFAULT_PROJECT)),
+      /* 案例2:存量改造包租-二线省会8万方 */
+      lease:JSON.parse(JSON.stringify(DEFAULT_PROJECT)),
+      /* 案例3:委管经营-社区商业5万方 */
+      ent:JSON.parse(JSON.stringify(DEFAULT_PROJECT))
+    };
+    /* 重资产案例 */
+    cases.dev.meta={name:'上海徐汇滨江购物中心',type:'dev',city:'上海',address:'龙腾大道2900号',propertyType:'购物中心',coopYears:20,grossArea:120000,leasableArea:91200,rentableRatio:76,openDate:'2027-09'};
+    cases.dev.revenue={rentBase:380,rentGrowth:4,pmFeeBase:45,pmFeeGrowth:3,occupancy:[50,75,88,93,95,95,95,95,95,95,95,95,95,95,95,95,95,95,95,95],otherIncomeRate:10,rentFreeMonths:6,rentOverride:true,pmOverride:false,occOverride:false};
+    cases.dev.cost={renovTotal:5500,renovArea:91200,designFee:4,contingency:5,rentToOwner:0,rentToOwnerGrowth:0,pmCostRate:55,energyCostRate:75,hrTotal:1200,hrAdmin:80,hrMgmtFee:60,hrLargeRepair:30,marketingRate:2,repairRate:1.5,insuranceRate:0.1,hrOverride:false,renovOverride:false};
+    cases.dev.tax={vatRent:9,vatPm:6,surcharge:12,incomeTax:25,propertyTaxRate:12,stampTaxRate:0.1,discountRate:8.5,loanRate:5.5,equityRatio:30,taxOverride:false};
+    cases.dev.devConfig={landPrice:8500,capRate:6.0,exitTaxRate:3};
+    cases.dev.entConfig={mgmtFeeRate:8,brandFee:200,leasingCommRate:2,perfShareRate:5,perfShareStartYear:3,staffRatio:40};
+    /* 包租案例 */
+    cases.lease.meta={name:'武汉江汉路新世界百货改造',type:'lease',city:'武汉',address:'江汉路步行街188号',propertyType:'购物中心',coopYears:15,grossArea:80000,leasableArea:60000,rentableRatio:75,openDate:'2026-10'};
+    cases.lease.revenue={rentBase:180,rentGrowth:5,pmFeeBase:28,pmFeeGrowth:3,occupancy:[70,85,92,94,95,95,95,95,95,95,95,95,95,95,95],otherIncomeRate:12,rentFreeMonths:4,rentOverride:true,pmOverride:false,occOverride:false};
+    cases.lease.cost={renovTotal:3500,renovArea:60000,designFee:5,contingency:5,rentToOwner:0,rentToOwnerGrowth:0,pmCostRate:50,energyCostRate:75,hrTotal:600,hrAdmin:50,hrMgmtFee:40,hrLargeRepair:20,marketingRate:3,repairRate:1.5,insuranceRate:0.1,hrOverride:false,renovOverride:false};
+    cases.lease.tax={vatRent:9,vatPm:6,surcharge:12,incomeTax:25,propertyTaxRate:12,stampTaxRate:0.1,discountRate:8.5,loanRate:5.5,equityRatio:30,taxOverride:false};
+    cases.lease.coop={mode:'收入分成',startRent:65,escalateRate:4,escalatePeriod:2,revShareRateFront:15,revShareRateBack:18,revShareYearsFront:5,netShareRateFront:30,netShareRateBack:40,netShareYearsFront:5};
+    /* 委管案例 */
+    cases.ent.meta={name:'成都翡翠天地社区商业',type:'ent',city:'成都',address:'高新区天府三街88号',propertyType:'社区商业',coopYears:10,grossArea:50000,leasableArea:38000,rentableRatio:76,openDate:'2026-08'};
+    cases.ent.revenue={rentBase:120,rentGrowth:4,pmFeeBase:22,pmFeeGrowth:3,occupancy:[75,88,92,94,95,95,95,95,95,95],otherIncomeRate:10,rentFreeMonths:3,rentOverride:true,pmOverride:false,occOverride:false};
+    cases.ent.cost={renovTotal:0,renovArea:0,designFee:0,contingency:0,rentToOwner:0,rentToOwnerGrowth:0,pmCostRate:0,energyCostRate:0,hrTotal:350,hrAdmin:30,hrMgmtFee:20,hrLargeRepair:10,marketingRate:0,repairRate:0,insuranceRate:0,hrOverride:false,renovOverride:false};
+    cases.ent.tax={vatRent:9,vatPm:6,surcharge:12,incomeTax:25,propertyTaxRate:12,stampTaxRate:0.1,discountRate:8.5,loanRate:5.5,equityRatio:30,taxOverride:false};
+    cases.ent.entConfig={mgmtFeeRate:10,brandFee:150,leasingCommRate:3,perfShareRate:6,perfShareStartYear:3,staffRatio:45};
+    /* 切换到对应模式并写入项目数据 */
+    const p=cases[id];
+    if(p){this.state.project=p;this.state.page='basic';this.toast(`已载入${ {dev:'重资产-上海徐汇滨江购物中心(12万方)',lease:'包租-武汉江汉路改造(8万方)',ent:'委管-成都翡翠天地(5万方)'}[id]} 案例`,'positive');this.render();}
+  }
+};
+document.addEventListener('DOMContentLoaded',()=>App.init());
+</script>
+</body>
+</html>
